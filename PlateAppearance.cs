@@ -14,19 +14,17 @@ namespace Basedball
             {
                 var outcome = Pitch.ThrowPitch(batter, pitcher, random);
                 
-                if (outcome == PitchOutcome.StrikeLooking || outcome == PitchOutcome.StrikeSwinging)
-                {
+                if (outcome == PitchOutcome.StrikeLooking || outcome == PitchOutcome.StrikeSwinging){
                     strikeCount++;
                     Console.WriteLine($"Strike {strikeCount}!");
                     if (strikeCount > 2) { return PAOutcome.Strikeout; }
                 } else if (outcome == PitchOutcome.Foul) {
-                    
+                    if (strikeCount <2 ) strikeCount ++;
                 } else if (outcome == PitchOutcome.Ball) {
                     ballCount++;
                     Console.WriteLine($"Ball {ballCount}!");
                     if (ballCount > 3) { return PAOutcome.Walk;}
                 } else if (outcome == PitchOutcome.BIP) {
-                    BIP = true;
                     return PAOutcome.Play;
                 }
             }
@@ -60,7 +58,6 @@ namespace Basedball
 
             int visionRoll = _random.Next(1, batter.Vision);
             int movementRoll = _random.Next(1, pitcher.Movement);
-
             int contactRoll = _random.Next(1, pitcher.Contact);
 
             if (visionRoll > movementRoll)

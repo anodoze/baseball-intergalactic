@@ -7,7 +7,7 @@ namespace Basedball
         public string LastName { get; set; }
         public Position Position { get; set; }
 
-        public int Durability { get; set; }    // player's overall health
+        public int Durability { get; set; }    // player's overall health/career state
         public int Composure { get; set; }     // player's ingame mental state
 
         // Nature
@@ -23,11 +23,10 @@ namespace Basedball
         public int Aggression { get; set; }    // interaction with opposing players - desire to steal bases, hit agressively, will charge the mound 
         public int Judgement { get; set; }     // player's ability to notice and hold back from high-risk plays
 
-        public int Luck { get; set; }          // has a small effect on everything
         public int Superstition { get; set; }  // how much effect Luck has
         public int Grit { get; set; }          // how well a player can weather Unlucky events
 
-        // Skill  
+        // Skill
 
         // batting 
         public int Prediction { get; set; }    // Batter's ability to call the next pitch, catcher's ability to read the batter
@@ -40,21 +39,19 @@ namespace Basedball
         // pitching
         public int Deception { get; set; }     // Pitcher's ability to hide their next pitch. on Catchers, improves framing ability
         public int Mechanics { get; set; }     // Pitcher's ability to leverage their Power
-        public int Velocity { get; set; }      // Pitcher's ability to throw fast, increasing strikes
+        public int Velocity { get; set; }      // Pitcher's ability to throw fast, decreasing contact
         public int Control { get; set; }       // Pitcher's ability to control their pitch, throwing it to difficult zones
-        public int Movement { get; set; }      // Pitcher's ability to create deceptive movement in a pitch
+        public int Movement { get; set; }      // Pitcher's ability to create deceptive movement in a pitch, increasing strikes swinging out-of-zone and strikes looking in-zone
 
         // baserunning
         public int Sprint { get; set; }        // Batter's ability to leverage their Speed on the basepaths - faster acceleration   
-        public int Performance { get; set; }   // Batter's ability to induce fielding mistakes. can sometimes dodge under what would be an out.
-        public int Sneak { get; set; }         // Batter's ability to steal bases
+        public int Performance { get; set; }   // Batter's ability to induce fielding mistakes. can sometimes dodge under what would be an out. Leverages Reaction
+        public int Sneak { get; set; }         // Batter's ability to steal bases, leverages Power and Speed
 
         // defense
-        public int Sense { get; set; }         // Defender's Ability to understand the game state and make good decisions
-
-        public int Agility { get; set; }       // Ability to get in position to catch the baseball
-        public int Acrobatics { get; set; }    // Ability to chase and catch the baseball when in range
-
+        public int Sense { get; set; }         // Defender's Ability to understand the game state and make good decisions. Leverages Vision/Awareness
+        public int Agility { get; set; }       // Ability to get in position to catch the baseball, when hit or thrown. leverages SPEED/Reaction
+        public int Acrobatics { get; set; }    // Ability to chase and catch the baseball when in range. leverages Reaction
         public int Arm { get; set; }           // Ability to throw quickly, especially over long distances
         public int Precision { get; set; }     // Ability to throw with precision to other teammates
 
@@ -88,7 +85,6 @@ namespace Basedball
             Aggression = random.Next(0, 101);
             Judgement = random.Next(0, 101);
 
-            Luck = random.Next(0, 101);
             Superstition = random.Next(0, 101);
             Grit = random.Next(0, 101);
 
