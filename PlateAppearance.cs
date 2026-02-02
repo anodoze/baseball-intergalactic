@@ -62,10 +62,34 @@ namespace Basedball
 
     public class Pitch
     {
+        // private static readonly Dictionary<int, ZoneWeights> DefaultZoneWeights = new()
+        // {
+        //     [1] = new ZoneWeights(0.00f, 0.40f, 0.35f, 0.25f), //in zone
+        //     [14] = new ZoneWeights(0.25f, 0.00f, 0.25f, 0.25f) // out of zone
+        // };
+
         private static readonly Dictionary<int, ZoneWeights> DefaultZoneWeights = new()
         {
-            [1] = new ZoneWeights(0.00f, 0.40f, 0.35f, 0.25f), //in zone
-            [14] = new ZoneWeights(0.25f, 0.00f, 0.25f, 0.25f) // out of zone
+            // Heart of the plate (middle-middle) - most contact
+            [5] = new ZoneWeights(0.00f, 0.15f, 0.70f, 0.15f),
+            
+            // Middle edges - good contact zones
+            [2] = new ZoneWeights(0.00f, 0.20f, 0.60f, 0.20f),
+            [4] = new ZoneWeights(0.00f, 0.25f, 0.55f, 0.20f),
+            [6] = new ZoneWeights(0.00f, 0.25f, 0.55f, 0.20f),
+            [8] = new ZoneWeights(0.00f, 0.20f, 0.60f, 0.20f),
+            
+            // Corners - harder to hit, more whiffs and looking strikes
+            [1] = new ZoneWeights(0.00f, 0.35f, 0.40f, 0.25f),
+            [3] = new ZoneWeights(0.00f, 0.30f, 0.45f, 0.25f),
+            [7] = new ZoneWeights(0.00f, 0.30f, 0.45f, 0.25f),
+            [9] = new ZoneWeights(0.00f, 0.35f, 0.40f, 0.25f),
+            
+            // Chase zones - outside but tempting
+            [11] = new ZoneWeights(0.40f, 0.00f, 0.35f, 0.25f), // High
+            [12] = new ZoneWeights(0.50f, 0.00f, 0.30f, 0.20f), // Away (RHH vs RHP)
+            [13] = new ZoneWeights(0.45f, 0.00f, 0.35f, 0.20f), // Low
+            [14] = new ZoneWeights(0.55f, 0.00f, 0.25f, 0.20f)  // Inside (RHH vs RHP)
         };
 
         public static PitchOutcome ThrowPitch(Player pitcher, Player batter, Random _random)
@@ -73,7 +97,7 @@ namespace Basedball
             // select pitch
             // balk?
             // select zone 
-            int zonePick = new[] { 1, 14 }[_random.Next(2)];
+            int zonePick = new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14 }[_random.Next(13)];
             var zoneWeights = DefaultZoneWeights[zonePick];
             // int cornerPick = new[] { 1, 3, 7, 9 }[_random.Next(4)];
             var batterWeights = new ZoneWeights(
