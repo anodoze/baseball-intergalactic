@@ -37,25 +37,25 @@ namespace Basedball
     public struct ZoneWeights
     {
         public float Ball;
+        public float Looking;
         public float Contact;
         public float Swinging;
-        public float Looking;
 
-        public ZoneWeights(float ball, float contact,  float swinging, float looking)
+        public ZoneWeights(float ball, float looking,  float contact, float swinging)
         {
             Ball = ball;
+            Looking = looking;
             Contact = contact;
             Swinging = swinging;
-            Looking = looking;
         }
 
         public static ZoneWeights operator +(ZoneWeights a, ZoneWeights b)
         {
             return new ZoneWeights(
                 a.Ball + b.Ball,
+                a.Looking + b.Looking,
                 a.Contact + b.Contact,
-                a.Swinging + b.Swinging,
-                a.Looking + b.Looking
+                a.Swinging + b.Swinging
             );
         }
     }
@@ -64,8 +64,8 @@ namespace Basedball
     {
         private static readonly Dictionary<int, ZoneWeights> DefaultZoneWeights = new()
         {
-            [1] = new ZoneWeights(0.00f, 0.35f, 0.25f, 0.40f), //in zone
-            [14] = new ZoneWeights(0.25f, 0.25f, 0.25f, 0.00f) // out of zone
+            [1] = new ZoneWeights(0.00f, 0.40f, 0.35f, 0.25f), //in zone
+            [14] = new ZoneWeights(0.25f, 0.00f, 0.25f, 0.25f) // out of zone
         };
 
         public static PitchOutcome ThrowPitch(Player pitcher, Player batter, Random _random)
@@ -78,16 +78,16 @@ namespace Basedball
             // int cornerPick = new[] { 1, 3, 7, 9 }[_random.Next(4)];
             var batterWeights = new ZoneWeights(
                 batter.Discipline,
+                - batter.Attack,
                 batter.Contact,
-                batter.Attack * 0.5f,
-                -batter.Attack
+                batter.Attack * 0.5f
             );
 
             var pitcherWeights = new ZoneWeights(
-                pitcher.Movement,
-                pitcher.Velocity,
-                pitcher.Movement, // always increases strikes swinging
-                pitcher.Movement  // also increases strikes looking when in the zone + eligible
+                - pitcher.Movement,
+                pitcher.Movement,  // also increases strikes looking when in the zone + eligible
+                - pitcher.Velocity,
+                pitcher.Movement // always increases strikes swinging
             );
 
             zoneWeights += batterWeights;
@@ -101,9 +101,13 @@ namespace Basedball
                 zoneWeights.Ball = 0;
             };
 
-            
+            float total = zoneWeights.Ball + zoneWeights.Contact + zoneWeights.Swinging + zoneWeights.Looking;
+            float roll = (float)_random.NextDouble() * total;
 
-
+            if ((roll -= zoneWeights.Ball) < 0) return PitchOutcome.Ball;
+            if ((roll -= zoneWeights.Looking) < 0) return PitchOutcome.StrikeLooking;
+            if ((roll -= zoneWeights.Contact) < 0) return PitchOutcome.BIP;
+            return PitchOutcome.StrikeSwinging;
         }
 
         // runners may attempt to steal!
