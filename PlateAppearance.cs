@@ -6,26 +6,31 @@ namespace Basedball
 
         public static PAOutcome Simulate(Player batter, Player pitcher, Random random)
         {
-            int strikeCount = 0;
             int ballCount = 0;
+            int strikeCount = 0;
             bool BIP = false;
 
             while (strikeCount < 3 && ballCount < 4 && BIP == false)
             {
-                var outcome = Pitch.ThrowPitch(batter, pitcher, random);
+                var result = Pitch.ThrowPitch(batter, pitcher, random);
                 
-                if (outcome == PitchOutcome.StrikeLooking || outcome == PitchOutcome.StrikeSwinging){
+                if (result.Outcome is PitchOutcome.StrikeLooking or PitchOutcome.StrikeSwinging){
                     strikeCount++;
-                    Console.WriteLine($"Strike {strikeCount}!");
+                    Display.Pitch(result, ballCount, strikeCount);
                     if (strikeCount > 2) { return PAOutcome.Strikeout; }
-                } else if (outcome == PitchOutcome.Foul) {
-                    if (strikeCount <2 ) strikeCount ++;
-                } else if (outcome == PitchOutcome.Ball) {
+                } else if (result.Outcome is PitchOutcome.Contact) {
+                    var contact = Contact.Simulate(random);
+                    if (contact is ContactOutcome.Foul) {
+                        if ( strikeCount < 2) strikeCount ++;                    
+                        Console.WriteLine($"Foul Ball! {strikeCount}");
+                    } else if (contact is ContactOutcome.BIP) {
+                        BIP = true;
+                        return PAOutcome.Play;
+                    }
+                } else if (result.Outcome == PitchOutcome.Ball) {
                     ballCount++;
-                    Console.WriteLine($"Ball {ballCount}!");
+                    Display.Pitch(result, ballCount, strikeCount);
                     if (ballCount > 3) { return PAOutcome.Walk;}
-                } else if (outcome == PitchOutcome.BIP) {
-                    return PAOutcome.Play;
                 }
             }
 
@@ -83,7 +88,7 @@ namespace Basedball
             [14] = new ZoneWeights(0.55f, 0.00f, 0.25f, 0.20f)  // Inside (RHH vs RHP)
         };
 
-        public static PitchOutcome ThrowPitch(Player pitcher, Player batter, Random _random)
+        public static PitchResult ThrowPitch(Player pitcher, Player batter, Random _random)
         {
             // select pitch
             // balk?
@@ -92,14 +97,14 @@ namespace Basedball
             int zonePick = new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14 }[_random.Next(13)];
             var zoneWeights = DefaultZoneWeights[zonePick];
             var batterWeights = new ZoneWeights(
-                batter.Discipline,
+                batter.Discipline * 2.0f,
                 - batter.Attack,
                 batter.Contact,
                 batter.Attack * 0.5f
             );
 
             var pitcherWeights = new ZoneWeights(
-                - pitcher.Movement,
+                - (pitcher.Movement * 0.5f),
                 pitcher.Movement,
                 - pitcher.Velocity,
                 pitcher.Movement
@@ -116,13 +121,15 @@ namespace Basedball
                 zoneWeights.Ball = 0;
             };
 
-            float total = zoneWeights.Ball + zoneWeights.Contact + zoneWeights.Swinging + zoneWeights.Looking;
-            float roll = (float)_random.NextDouble() * total;
+            float total = zoneWeights.Ball + zoneWeights.Looking + zoneWeights.Contact + zoneWeights.Swinging;
+            float roll = (float)_random.NextSingle() * total;
 
-            if ((roll -= zoneWeights.Ball) < 0) return PitchOutcome.Ball;
-            if ((roll -= zoneWeights.Looking) < 0) return PitchOutcome.StrikeLooking;
-            if ((roll -= zoneWeights.Contact) < 0) return PitchOutcome.BIP;
-            return PitchOutcome.StrikeSwinging;
+            var outcome = (roll -= zoneWeights.Ball) < 0 ? PitchOutcome.Ball
+                : (roll -= zoneWeights.Looking) < 0 ? PitchOutcome.StrikeLooking
+                : (roll -= zoneWeights.Contact) < 0 ? PitchOutcome.Contact
+                : PitchOutcome.StrikeSwinging;
+
+            return new PitchResult { Outcome = outcome, Zone = zonePick };
         }
 
         // runners may attempt to steal!
@@ -135,9 +142,16 @@ namespace Basedball
         StrikeLooking,
         StrikeSwinging,
         Ball,
-        Foul,
-        BIP,
+        Contact,
         Balk
+    }
+
+    public struct PitchResult
+    {
+        public PitchOutcome Outcome { get; init; }
+        public int Zone { get; init; }
+        // public PitchType PitchType { get; init; }
+        // pitch speed
     }
 
     public enum PAOutcome
@@ -152,6 +166,3 @@ namespace Basedball
             // speed: advancement success
             // performance: lowers defense effectiveness, can sneak under what would otherwise be a tagout
 }
-
-
-

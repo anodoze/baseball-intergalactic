@@ -12,19 +12,18 @@ namespace Basedball
 
         // Nature
         public float Vision { get; set; }        // ball tracking 
-        public float Awareness { get; set; }     // situational awareness
-        public float Reaction { get; set; }      // reaction speed
+        public float Awareness { get; set; }     // situational awareness/decisionmaking
+        public float Reaction { get; set; }      // raw reaction speed
         public float Power { get; set; }         // hard throwing/batting/sprint acceleration
         public float Grace { get; set; }         // clean movement and form. reduces injury chance.
         public float Speed { get; set; }         // SPEED
-        public float Stamina { get; set; }       // mostly affects pitchers and catchers as pitch count goes up
+        public float Stamina { get; set; }       // mostly affects pitchers and catchers as pitch count goes up. if a game goes to extras... Watch Out
    
         public float Charisma { get; set; }      // player interaction with fans
         public float Esprit { get; set; }        // player interaction with teammates
-        public float Aggression { get; set; }    // interaction with opposing players - desire to steal bases, hit agressively, will charge the mound 
-        public float Judgement { get; set; }     // player's ability to notice and hold back from high-risk plays
+        public float Aggression { get; set; }    // interaction with opposing players - desire to steal bases, hit agressively, will charge the mound. aggresive players draw out aggressive behavior in others 
+        public float Judgement { get; set; }     // player's ability to notice and hold back from high-risk plays, hold back from rising to others' Aggression
         public float Wisdom { get; set; }        // player's ability to learn throughout the game
-
         public float Superstition { get; set; }  // how much effect Luck has, in both directions
         public float Grit { get; set; }          // how well a player can weather Unlucky events, improves performance at low Stamina
 
@@ -32,11 +31,11 @@ namespace Basedball
 
         // batting 
         public float Discipline { get; set; }    // Batter's ability to hold back outside the strike zone
-        public float Attack { get; set; }        // Batter's ability to reliably attack inside the strike zone
+        public float Attack { get; set; }        // Batter's willingness to swing
         public float Contact { get; set; }       // Batter's ability to Contact the ball when swinging
-        public float Form { get; set; }          // Batter's ability to leverage their Power
+        public float Form { get; set; }          // Batter's ability to leverage their Power into clean hits
         public float Aim { get; set; }           // Batter's ability to hit the ball to an auspicious location
-        public float Intimidation { get; set; }  // Batter's ability to scare the Pitcher, throwing off their aim and chasing them out of the strike zone
+        public float Intimidation { get; set; }  // Batter's ability to scare the Pitcher, throwing off their control to pitch to easier zones
 
         // pitching
         public float Deception { get; set; }     // Pitcher's ability to hide their next pitch. on Catchers, improves framing ability. leverages Wisdom.
@@ -47,14 +46,14 @@ namespace Basedball
         public float Presence { get; set; }       // Pitcher's ability to scare the Batter, reducing Power and quality of contact
 
         // baserunning
-        public float Sprint { get; set; }        // Batter's ability to leverage their Speed on the basepaths - faster acceleration   
-        public float Performance { get; set; }   // Batter's ability to induce fielding mistakes. can sometimes dodge under what would be an out. Leverages Reaction
+        public float Sprint { get; set; }        // Batter's ability to leverage their Speed on the basepaths   
+        public float Performance { get; set; }   // Batter's ability to induce fielding mistakes. clean slides. can sometimes dodge what would be an out. Leverages Reaction and Grace
         public float Sneak { get; set; }         // Batter's ability to steal bases, leverages Power and Speed
 
         // defense
         public float Sense { get; set; }         // Defender's Ability to understand the game state and make good decisions. Leverages Vision/Awareness
         public float Agility { get; set; }       // Ability to get in position to catch the baseball, when hit or thrown. leverages SPEED/Reaction
-        public float Acrobatics { get; set; }    // Ability to chase and catch the baseball when in range. leverages Reaction
+        public float Acrobatics { get; set; }    // Ability to chase and catch the baseball when in range. leverages Reaction. can compensate for low teammate Precision
         public float Arm { get; set; }           // Ability to throw quickly, especially over long distances
         public float Dexterity { get; set; }     // Ability to field squirrely ground balls, and tag out slippery baserunners
         public float Precision { get; set; }     // Ability to throw with precision to other teammates
