@@ -34,68 +34,81 @@ namespace Basedball
         }
     }
 
+    public struct ZoneWeights
+    {
+        public float Ball;
+        public float Contact;
+        public float Swinging;
+        public float Looking;
+
+        public ZoneWeights(float ball, float contact,  float swinging, float looking)
+        {
+            Ball = ball;
+            Contact = contact;
+            Swinging = swinging;
+            Looking = looking;
+        }
+
+        public static ZoneWeights operator +(ZoneWeights a, ZoneWeights b)
+        {
+            return new ZoneWeights(
+                a.Ball + b.Ball,
+                a.Contact + b.Contact,
+                a.Swinging + b.Swinging,
+                a.Looking + b.Looking
+            );
+        }
+    }
+
     public class Pitch
     {
+        private static readonly Dictionary<int, ZoneWeights> DefaultZoneWeights = new()
+        {
+            [1] = new ZoneWeights(0.00f, 0.35f, 0.25f, 0.40f), //in zone
+            [14] = new ZoneWeights(0.25f, 0.25f, 0.25f, 0.00f) // out of zone
+        };
 
         public static PitchOutcome ThrowPitch(Player pitcher, Player batter, Random _random)
         {
             // select pitch
-
-            // throw pitch
             // balk?
-            int balkRoll = _random.Next(1, 1001 + (pitcher.Composure * 5));
-            if (balkRoll == 1) { return PitchOutcome.Balk; }
-
             // select zone 
-            int cornerPick = new[] { 1, 3, 7, 9 }[_random.Next(4)];
-            int zonePick = cornerPick;
-            int controlRoll = _random.Next(1, pitcher.Control);
-            if (controlRoll < 20)
-            {
-                zonePick = _random.Next(1, 15);
-            } 
-            // add logic later for near-misses
+            int zonePick = new[] { 1, 14 }[_random.Next(2)];
+            var zoneWeights = DefaultZoneWeights[zonePick];
+            // int cornerPick = new[] { 1, 3, 7, 9 }[_random.Next(4)];
+            var batterWeights = new ZoneWeights(
+                batter.Discipline,
+                batter.Contact,
+                batter.Attack * 0.5f,
+                -batter.Attack
+            );
 
-            int visionRoll = _random.Next(1, batter.Vision);
-            int movementRoll = _random.Next(1, pitcher.Movement);
-            int contactRoll = _random.Next(1, pitcher.Contact);
+            var pitcherWeights = new ZoneWeights(
+                pitcher.Movement,
+                pitcher.Velocity,
+                pitcher.Movement, // always increases strikes swinging
+                pitcher.Movement  // also increases strikes looking when in the zone + eligible
+            );
 
-            if (visionRoll > movementRoll)
+            zoneWeights += batterWeights;
+            zoneWeights += pitcherWeights;
+
+            // modify weights to account for zone - no strikes looking out of the zone, no balls in the zone
+            if (zonePick == 14)
             {
-                return PitchOutcome.Ball;
+                zoneWeights.Looking = 0;
             } else {
-                if (contactRoll > controlRoll)
-                    {
-                        return PitchOutcome.BIP;
-                    } else
-                {
-                    return PitchOutcome.StrikeSwinging;
-                }
-            }
+                zoneWeights.Ball = 0;
+            };
+
+            
+
+
         }
-        //PITCHER
-            // throw pitch
-                // balk?
-            // select zone
-                // control roll
-                // if control fails, select another zone
-            // motion roll
-            // velocity roll
 
         // runners may attempt to steal!
         // notice?
         // throw them out?
-
-        //BATTER
-        // guess pitch
-        // track ball
-            // in/out of zone?
-            // swing?
-            // contact?
-        // hit quality
-            // angle
-            // distance
-            // location
     }
     
     public enum PitchOutcome

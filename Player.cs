@@ -7,53 +7,57 @@ namespace Basedball
         public string LastName { get; set; }
         public Position Position { get; set; }
 
-        public int Durability { get; set; }    // player's overall health/career state
-        public int Composure { get; set; }     // player's ingame mental state
+        public float Durability { get; set; }    // player's overall health/career state
+        public float Composure { get; set; }     // player's ingame mental state
 
         // Nature
-        public int Vision { get; set; }        // ball tracking 
-        public int Awareness { get; set; }     // situational awareness
-        public int Reaction { get; set; }      // reaction speed
-        public int Power { get; set; }         // hard throwing/batting/sprint acceleration
-        public int Speed { get; set; }         // SPEED
-        public int Stamina { get; set; }       // mostly affects pitchers and catchers as pitch count goes up
+        public float Vision { get; set; }        // ball tracking 
+        public float Awareness { get; set; }     // situational awareness
+        public float Reaction { get; set; }      // reaction speed
+        public float Power { get; set; }         // hard throwing/batting/sprint acceleration
+        public float Grace { get; set; }         // clean movement and form. reduces injury chance.
+        public float Speed { get; set; }         // SPEED
+        public float Stamina { get; set; }       // mostly affects pitchers and catchers as pitch count goes up
    
-        public int Charisma { get; set; }      // player interaction with fans
-        public int Esprit { get; set; }        // player interaction with teammates
-        public int Aggression { get; set; }    // interaction with opposing players - desire to steal bases, hit agressively, will charge the mound 
-        public int Judgement { get; set; }     // player's ability to notice and hold back from high-risk plays
+        public float Charisma { get; set; }      // player interaction with fans
+        public float Esprit { get; set; }        // player interaction with teammates
+        public float Aggression { get; set; }    // interaction with opposing players - desire to steal bases, hit agressively, will charge the mound 
+        public float Judgement { get; set; }     // player's ability to notice and hold back from high-risk plays
+        public float Wisdom { get; set; }        // player's ability to learn throughout the game
 
-        public int Superstition { get; set; }  // how much effect Luck has
-        public int Grit { get; set; }          // how well a player can weather Unlucky events
+        public float Superstition { get; set; }  // how much effect Luck has, in both directions
+        public float Grit { get; set; }          // how well a player can weather Unlucky events, improves performance at low Stamina
 
         // Skill
 
         // batting 
-        public int Prediction { get; set; }    // Batter's ability to call the next pitch, catcher's ability to read the batter
-        public int Discipline { get; set; }    // Batter's ability to hold back outside the strike zone
-        public int Attack { get; set; }        // Batter's ability to reliably attack inside the strike zone
-        public int Contact { get; set; }       // Batter's ability to Contact the ball when swinging
-        public int Form { get; set; }          // Batter's ability to leverage their Power
-        public int Aim { get; set; }           // Batter's ability to hit the ball to an auspicious location
+        public float Discipline { get; set; }    // Batter's ability to hold back outside the strike zone
+        public float Attack { get; set; }        // Batter's ability to reliably attack inside the strike zone
+        public float Contact { get; set; }       // Batter's ability to Contact the ball when swinging
+        public float Form { get; set; }          // Batter's ability to leverage their Power
+        public float Aim { get; set; }           // Batter's ability to hit the ball to an auspicious location
+        public float Intimidation { get; set; }  // Batter's ability to scare the Pitcher, throwing off their aim and chasing them out of the strike zone
 
         // pitching
-        public int Deception { get; set; }     // Pitcher's ability to hide their next pitch. on Catchers, improves framing ability
-        public int Mechanics { get; set; }     // Pitcher's ability to leverage their Power
-        public int Velocity { get; set; }      // Pitcher's ability to throw fast, decreasing contact
-        public int Control { get; set; }       // Pitcher's ability to control their pitch, throwing it to difficult zones
-        public int Movement { get; set; }      // Pitcher's ability to create deceptive movement in a pitch, increasing strikes swinging out-of-zone and strikes looking in-zone
+        public float Deception { get; set; }     // Pitcher's ability to hide their next pitch. on Catchers, improves framing ability. leverages Wisdom.
+        public float Control { get; set; }       // Pitcher's ability to control their pitch, throwing it to difficult zones
+        public float Mechanics { get; set; }     // Pitcher's ability to leverage their Power and Grace
+        public float Velocity { get; set; }      // Pitcher's ability to throw fast, decreasing contact
+        public float Movement { get; set; }      // Pitcher's ability to create deceptive movement in a pitch, increasing strikes swinging out-of-zone and strikes looking in-zone
+        public float Presence { get; set; }       // Pitcher's ability to scare the Batter, reducing Power and quality of contact
 
         // baserunning
-        public int Sprint { get; set; }        // Batter's ability to leverage their Speed on the basepaths - faster acceleration   
-        public int Performance { get; set; }   // Batter's ability to induce fielding mistakes. can sometimes dodge under what would be an out. Leverages Reaction
-        public int Sneak { get; set; }         // Batter's ability to steal bases, leverages Power and Speed
+        public float Sprint { get; set; }        // Batter's ability to leverage their Speed on the basepaths - faster acceleration   
+        public float Performance { get; set; }   // Batter's ability to induce fielding mistakes. can sometimes dodge under what would be an out. Leverages Reaction
+        public float Sneak { get; set; }         // Batter's ability to steal bases, leverages Power and Speed
 
         // defense
-        public int Sense { get; set; }         // Defender's Ability to understand the game state and make good decisions. Leverages Vision/Awareness
-        public int Agility { get; set; }       // Ability to get in position to catch the baseball, when hit or thrown. leverages SPEED/Reaction
-        public int Acrobatics { get; set; }    // Ability to chase and catch the baseball when in range. leverages Reaction
-        public int Arm { get; set; }           // Ability to throw quickly, especially over long distances
-        public int Precision { get; set; }     // Ability to throw with precision to other teammates
+        public float Sense { get; set; }         // Defender's Ability to understand the game state and make good decisions. Leverages Vision/Awareness
+        public float Agility { get; set; }       // Ability to get in position to catch the baseball, when hit or thrown. leverages SPEED/Reaction
+        public float Acrobatics { get; set; }    // Ability to chase and catch the baseball when in range. leverages Reaction
+        public float Arm { get; set; }           // Ability to throw quickly, especially over long distances
+        public float Dexterity { get; set; }     // Ability to field squirrely ground balls, and tag out slippery baserunners
+        public float Precision { get; set; }     // Ability to throw with precision to other teammates
 
 
         public List<PitchType> Pitches { get; set; } = new List<PitchType>();
@@ -71,45 +75,48 @@ namespace Basedball
             Pitches.AddRange(shuffled);
             
             Durability = 100;
-            Composure = random.Next(0, 101);
+            Composure = random.NextSingle() * 0.1f;
 
-            Vision = random.Next(0, 101);
-            Awareness = random.Next(0, 101);
-            Reaction = random.Next(0, 101);
-            Power = random.Next(0, 101);
-            Speed = random.Next(0, 101);
-            Stamina = random.Next(0, 101);
+            Vision = random.NextSingle() * 0.1f;
+            Awareness = random.NextSingle() * 0.1f;
+            Reaction = random.NextSingle() * 0.1f;
+            Power = random.NextSingle() * 0.1f;
+            Grace = random.NextSingle() * 0.1f;
+            Speed = random.NextSingle() * 0.1f;
+            Stamina = random.NextSingle() * 0.1f;
 
-            Charisma = random.Next(0, 101);
-            Esprit = random.Next(0, 101);
-            Aggression = random.Next(0, 101);
-            Judgement = random.Next(0, 101);
+            Charisma = random.NextSingle() * 0.1f;
+            Esprit = random.NextSingle() * 0.1f;
+            Aggression = random.NextSingle() * 0.1f;
+            Judgement = random.NextSingle() * 0.1f;
 
-            Superstition = random.Next(0, 101);
-            Grit = random.Next(0, 101);
+            Superstition = random.NextSingle() * 0.1f;
+            Grit = random.NextSingle() * 0.1f;
 
-            Prediction = random.Next(0, 101);
-            Discipline = random.Next(0, 101);
-            Attack = random.Next(0, 101);
-            Contact = random.Next(0, 101);
-            Form = random.Next(0, 101);
-            Aim = random.Next(0, 101);
+            Discipline = random.NextSingle() * 0.1f;
+            Attack = random.NextSingle() * 0.1f;
+            Contact = random.NextSingle() * 0.1f;
+            Form = random.NextSingle() * 0.1f;
+            Aim = random.NextSingle() * 0.1f;
+            Intimidation = random.NextSingle() * 0.1f;
 
-            Deception = random.Next(0, 101);
-            Mechanics = random.Next(0, 101);
-            Velocity = random.Next(0, 101);
-            Control = random.Next(0, 101);
-            Movement = random.Next(0, 101); 
+            Deception = random.NextSingle() * 0.1f;
+            Mechanics = random.NextSingle() * 0.1f;
+            Velocity = random.NextSingle() * 0.1f;
+            Control = random.NextSingle() * 0.1f;
+            Movement = random.NextSingle() * 0.1f; 
+            Presence = random.NextSingle() * 0.1f; 
 
-            Sprint = random.Next(0, 101);
-            Performance = random.Next(0, 101);
-            Sneak = random.Next(0, 101);
+            Sprint = random.NextSingle() * 0.1f;
+            Performance = random.NextSingle() * 0.1f;
+            Sneak = random.NextSingle() * 0.1f;
 
-            Sense = random.Next(0, 101);
-            Agility = random.Next(0, 101);
-            Acrobatics = random.Next(0, 101);
-            Arm = random.Next(0, 101);
-            Precision = random.Next(0, 101);
+            Sense = random.NextSingle() * 0.1f;
+            Agility = random.NextSingle() * 0.1f;
+            Acrobatics = random.NextSingle() * 0.1f;
+            Arm = random.NextSingle() * 0.1f;
+            Dexterity = random.NextSingle() * 0.1f;
+            Precision = random.NextSingle() * 0.1f;
         }
     }
 

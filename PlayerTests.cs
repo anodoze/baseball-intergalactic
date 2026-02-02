@@ -33,7 +33,6 @@ namespace Basedball.Tests
             Assert.InRange(player.Superstition, 0, 100);
             Assert.InRange(player.Grit, 0, 100);
 
-            Assert.InRange(player.Prediction, 0, 100);
             Assert.InRange(player.Discipline, 0, 100);
             Assert.InRange(player.Attack, 0, 100);
             Assert.InRange(player.Contact, 0, 100);
