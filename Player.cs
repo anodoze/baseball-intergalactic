@@ -40,10 +40,11 @@ namespace Basedball
         // pitching
         public float Deception { get; set; }     // Pitcher's ability to hide their next pitch. on Catchers, improves framing ability. leverages Wisdom.
         public float Control { get; set; }       // Pitcher's ability to control their pitch, throwing it to difficult zones
-        public float Mechanics { get; set; }     // Pitcher's ability to leverage their Power and Grace
-        public float Velocity { get; set; }      // Pitcher's ability to throw fast, decreasing contact
-        public float Movement { get; set; }      // Pitcher's ability to create deceptive movement in a pitch, increasing strikes swinging out-of-zone and strikes looking in-zone
-        public float Presence { get; set; }       // Pitcher's ability to scare the Batter, reducing Power and quality of contact
+        public float Mechanics { get; set; }     // Pitcher's ability to further leverage their Power and Grace in other skills
+        public float Velocity { get; set; }      // Pitcher's ability to throw fast, decreasing contact. leverages Power
+        public float Movement { get; set; }      // Pitcher's ability to create deceptive movement in a pitch, increasing strikes swinging out-of-zone and strikes looking generally Leverages Grace
+        public float Presence { get; set; }      // Pitcher's ability to scare the Batter, reducing the Power of hits
+        public float Stuff { get; set; }         // Pitcher's ability to induce poor-quality contact, reducing line drives and clean fly balls
 
         // baserunning
         public float Sprint { get; set; }        // Batter's ability to leverage their Speed on the basepaths   
