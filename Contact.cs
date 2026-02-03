@@ -4,8 +4,8 @@ namespace Basedball
     {
         public static ContactOutcome Simulate(Random random)
         {
-            int go = random.Next(1);
-            if (go > 1) return ContactOutcome.Foul;
+            int go = random.Next(2);
+            if (go < 1) return ContactOutcome.Foul;
             return ContactOutcome.BIP;
         }
     }

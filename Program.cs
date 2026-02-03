@@ -1,5 +1,4 @@
 ﻿using Basedball;
-using Microsoft.VisualStudio.TestPlatform.ObjectModel;
 
 Random _random = new Random();
 
