@@ -46,7 +46,8 @@ namespace Basedball
         public float Contact { get; init; }
         public float Swinging { get; init; }
 
-        public ZoneWeights(float ball, float looking,  float contact, float swinging)
+        public ZoneWeights(float ball = 0f, float looking = 0f,  
+                            float contact = 0f, float swinging = 0f)
         {
             Ball = ball;
             Looking = looking;
@@ -63,6 +64,16 @@ namespace Basedball
                 a.Swinging + b.Swinging
             );
         }
+
+        public ZoneWeights WithNegativesZeroed()
+        {
+            return new ZoneWeights(
+                Math.Max(0, Ball),
+                Math.Max(0, Looking),
+                Math.Max(0, Contact),
+                Math.Max(0, Swinging)
+            );
+        }
     }
 
     public class Pitch
@@ -70,22 +81,22 @@ namespace Basedball
         private static readonly Dictionary<int, ZoneWeights> DefaultZoneWeights = new()
         {
             // Heart of the plate (middle-middle) - most contact
-            [5] = new ZoneWeights(0.00f, 0.15f, 0.70f, 0.15f),
+            [5] = new ZoneWeights(looking: 0.15f, contact: 0.70f, swinging: 0.15f),
             // Middle edges - good contact zones
-            [2] = new ZoneWeights(0.00f, 0.20f, 0.60f, 0.20f),
-            [4] = new ZoneWeights(0.00f, 0.25f, 0.55f, 0.20f),
-            [6] = new ZoneWeights(0.00f, 0.25f, 0.55f, 0.20f),
-            [8] = new ZoneWeights(0.00f, 0.20f, 0.60f, 0.20f),
+            [2] = new ZoneWeights(looking: 0.20f, contact: 0.60f, swinging: 0.20f),
+            [4] = new ZoneWeights(looking: 0.25f, contact: 0.55f, swinging: 0.20f),
+            [6] = new ZoneWeights(looking: 0.25f, contact: 0.55f, swinging: 0.20f),
+            [8] = new ZoneWeights(looking: 0.20f, contact: 0.60f, swinging: 0.20f),
             // Corners - harder to hit, more whiffs and looking strikes
-            [1] = new ZoneWeights(0.00f, 0.35f, 0.40f, 0.25f),
-            [3] = new ZoneWeights(0.00f, 0.30f, 0.45f, 0.25f),
-            [7] = new ZoneWeights(0.00f, 0.30f, 0.45f, 0.25f),
-            [9] = new ZoneWeights(0.00f, 0.35f, 0.40f, 0.25f),
+            [1] = new ZoneWeights(looking: 0.35f, contact: 0.40f, swinging: 0.25f),
+            [3] = new ZoneWeights(looking: 0.30f, contact: 0.45f, swinging: 0.25f),
+            [7] = new ZoneWeights(looking: 0.30f, contact: 0.45f, swinging: 0.25f),
+            [9] = new ZoneWeights(looking: 0.35f, contact: 0.40f, swinging: 0.25f), 
             // Chase zones - outside but tempting
-            [11] = new ZoneWeights(0.40f, 0.00f, 0.35f, 0.25f), // High
-            [12] = new ZoneWeights(0.50f, 0.00f, 0.30f, 0.20f), // Away (RHH vs RHP)
-            [13] = new ZoneWeights(0.45f, 0.00f, 0.35f, 0.20f), // Low
-            [14] = new ZoneWeights(0.55f, 0.00f, 0.25f, 0.20f)  // Inside (RHH vs RHP)
+            [11] = new ZoneWeights(ball: 0.40f, contact: 0.35f, swinging: 0.25f), // High
+            [12] = new ZoneWeights(ball: 0.50f, contact: 0.30f, swinging: 0.20f), // Away (RHH vs RHP)
+            [13] = new ZoneWeights(ball: 0.45f, contact: 0.35f, swinging: 0.20f), // Low
+            [14] = new ZoneWeights(ball: 0.55f, contact: 0.25f, swinging: 0.20f)  // Inside (RHH vs RHP)
         };
 
         public static PitchResult ThrowPitch(Player pitcher, Player batter, Random _random)
