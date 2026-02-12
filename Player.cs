@@ -21,8 +21,8 @@ namespace Basedball
 
 		public float Charisma { get; set; } // player interaction with fans
 		public float Esprit { get; set; } // player interaction with teammates
-		public float Aggression { get; set; } // interaction with opposing players - desire to steal bases, hit agressively, will charge the mound. aggresive players draw out aggressive behavior in others
-		public float Judgement { get; set; } // player's ability to notice and hold back from high-risk plays, hold back from rising to others' Aggression
+		public float Aggression { get; set; } // interaction with opposing players - desire to steal bases, hit aggressively, attack fielding opportunities. will charge the mound. aggressive players draw out aggressive behavior in others
+		public float Judgement { get; set; } // player's ability to notice and hold back from high-risk plays they can't execute, hold back from rising to others' Aggression
 		public float Wisdom { get; set; } // player's ability to learn throughout the game
 		public float Superstition { get; set; } // how much effect Luck has, in both directions
 		public float Grit { get; set; } // how well a player can weather Unlucky events, improves performance at low Stamina

@@ -71,29 +71,29 @@ namespace Basedball
 	public struct DirectionWeights
 	{
 		public float LeftLine { get; set; }
-		public float LeftField { get; set; }
-		public float LeftCenterField { get; set; }
+		public float LeftGap { get; set; }
+		public float LeftCenter { get; set; }
 		public float Center { get; set; }
-		public float RightCenterField { get; set; }
-		public float RightField { get; set; }
+		public float RightCenter { get; set; }
+		public float RightGap { get; set; }
 		public float RightLine { get; set; }
 
 		public DirectionWeights(
 			float leftLine = 0f,
-			float leftField = 0f,
-			float leftCenterField = 0f,
+			float leftGap = 0f,
+			float leftCenter = 0f,
 			float center = 0f,
-			float rightCenterField = 0f,
-			float rightField = 0f,
+			float rightCenter = 0f,
+			float rightGap = 0f,
 			float rightLine = 0f
 		)
 		{
 			LeftLine = leftLine;
-			LeftField = leftField;
-			LeftCenterField = leftCenterField;
+			LeftGap = leftGap;
+			LeftCenter = leftCenter;
 			Center = center;
-			RightCenterField = rightCenterField;
-			RightField = rightField;
+			RightCenter = rightCenter;
+			RightGap = rightGap;
 			RightLine = rightLine;
 		}
 
@@ -101,11 +101,11 @@ namespace Basedball
 		{
 			return new DirectionWeights(
 				a.LeftLine + b.LeftLine,
-				a.LeftField + b.LeftField,
-				a.LeftCenterField + b.LeftCenterField,
+				a.LeftGap + b.LeftGap,
+				a.LeftCenter + b.LeftCenter,
 				a.Center + b.Center,
-				a.RightCenterField + b.RightCenterField,
-				a.RightField + b.RightField,
+				a.RightCenter + b.RightCenter,
+				a.RightGap + b.RightGap,
 				a.RightLine + b.RightLine
 			);
 		}
@@ -114,16 +114,16 @@ namespace Basedball
 		{
 			return new DirectionWeights(
 				Math.Max(0, LeftLine),
-				Math.Max(0, LeftField),
-				Math.Max(0, LeftCenterField),
+				Math.Max(0, LeftGap),
+				Math.Max(0, LeftCenter),
 				Math.Max(0, Center),
-				Math.Max(0, RightCenterField),
-				Math.Max(0, RightField),
+				Math.Max(0, RightCenter),
+				Math.Max(0, RightGap),
 				Math.Max(0, RightLine)
 			);
 		}
 	}
-
+	
 	public struct ForceWeights
 	{
 		public float Weak { get; set; }
