@@ -163,6 +163,38 @@ namespace Basedball
                 blast: 0.8f
             ),
         };
+
+        public static readonly Dictionary<Angle, FieldingOutcomeWeights> DefaultFieldingWeights = new()
+        {
+            [Angle.Ground] = new FieldingOutcomeWeights(
+                foul: 0f,          // grounders don't go foul after initial contact
+                caughtOut: 0f,     // can't catch what's on the ground
+                fielded: 1.5f,     // most common outcome
+                bobbled: 0.3f,     // bad hops happen
+                miss: 0.2f         // gets past you
+            ),
+            [Angle.Line] = new FieldingOutcomeWeights(
+                foul: 0f,
+                caughtOut: 0.8f,   // hard but possible
+                fielded: 0.4f,     // if you don't catch it clean, usually a hit
+                bobbled: 0.15f,    // off the glove
+                miss: 0.65f        // these scream past people
+            ),
+            [Angle.Fly] = new FieldingOutcomeWeights(
+                foul: 0f,
+                caughtOut: 1.3f,   // routine fly balls should get caught
+                fielded: 0.1f,     // rare - ball bounces after you miss
+                bobbled: 0.2f,     // off the glove
+                miss: 0.4f         // misjudged it
+            ),
+            [Angle.Popup] = new FieldingOutcomeWeights(
+                foul: 0f,
+                caughtOut: 1.6f,   // easiest catches
+                fielded: 0.05f,
+                bobbled: 0.15f,
+                miss: 0.2f
+            ),
+        };
     }
 
     public enum Direction
@@ -209,5 +241,14 @@ namespace Basedball
     {
         Lefty,
         Righty
+    }
+
+    public enum FieldingOutcome
+    {
+        Foul,
+        CaughtOut,
+        Fielded,
+        Bobbled,
+        Miss
     }
 }

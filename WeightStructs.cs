@@ -295,4 +295,64 @@ namespace Basedball
 				: PitchOutcome.StrikeSwinging;
 		}
 	}
+
+	public struct FieldingOutcomeWeights
+	{
+		public float Foul { get; set; }
+		public float CaughtOut { get; set; }
+		public float Fielded { get; set; }
+		public float Bobbled { get; set; }
+		public float Miss { get; set; }
+
+		public FieldingOutcomeWeights(
+			float foul = 0f,
+			float caughtOut = 0f,
+			float fielded = 0f,
+			float bobbled = 0f,
+			float miss = 0f
+		)
+		{
+			Foul = foul;
+			CaughtOut = caughtOut;
+			Fielded = fielded;
+			Bobbled = bobbled;
+			Miss = miss;
+		}
+
+		public static FieldingOutcomeWeights operator +(FieldingOutcomeWeights a, FieldingOutcomeWeights b)
+		{
+			return new FieldingOutcomeWeights(
+				a.Foul + b.Foul,
+				a.CaughtOut + b.CaughtOut,
+				a.Fielded + b.Fielded,
+				a.Bobbled + b.Bobbled,
+				a.Miss + b.Miss
+			);
+		}
+
+		public FieldingOutcomeWeights WithNegativesZeroed()
+		{
+			return new FieldingOutcomeWeights(
+				Math.Max(0, Foul),
+				Math.Max(0, CaughtOut),
+				Math.Max(0, Fielded),
+				Math.Max(0, Bobbled),
+				Math.Max(0, Miss)
+			);
+		}
+
+		public FieldingOutcome RollDice(Random random)
+		{
+			var zeroed = WithNegativesZeroed();
+			float total = zeroed.Foul + zeroed.CaughtOut + zeroed.Fielded + 
+						zeroed.Bobbled + zeroed.Miss;
+			float roll = random.NextSingle() * total;
+			
+			return (roll -= zeroed.Foul) < 0 ? FieldingOutcome.Foul
+				: (roll -= zeroed.CaughtOut) < 0 ? FieldingOutcome.CaughtOut
+				: (roll -= zeroed.Fielded) < 0 ? FieldingOutcome.Fielded
+				: (roll -= zeroed.Bobbled) < 0 ? FieldingOutcome.Bobbled
+				: FieldingOutcome.Miss;
+		}
+	}
 }

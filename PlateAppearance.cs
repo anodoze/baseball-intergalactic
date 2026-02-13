@@ -115,7 +115,7 @@ namespace Basedball
 			var outcome = zoneWeights.RollDice(_random);
 			return new PitchResult { Outcome = outcome, Zone = zonePick };
 		}
-
+        // todo: add foul tips at some point?
 		// runners may attempt to steal!
 		// notice?
 		// throw them out?

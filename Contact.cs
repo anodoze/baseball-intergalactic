@@ -188,13 +188,9 @@ namespace Basedball
     public struct FieldingAttempt
     {
         public Player PrimaryFielder { get; init; }
-        public Player? SecondaryFielder { get; init; } // if it gets past primary
-        
-        public float Difficulty { get; init; } // combined score
-        public bool CanBeFoul { get; init; } // directions 1/7 only
-        
-        // Keep the contact info for context
+        public Player? SecondaryFielder { get; init; }
         public ContactInfo Contact { get; init; }
+        public bool CanBeFoul { get; init; } // directions 1/7 only
     }
 
 	public enum ContactOutcome
