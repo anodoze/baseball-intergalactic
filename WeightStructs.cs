@@ -148,14 +148,14 @@ namespace Basedball
 		}
 	}
 
-	public struct HitTypeWeights
+	public struct AngleWeights
 	{
 		public float Ground { get; set; }
 		public float Line { get; set; }
 		public float Fly { get; set; }
 		public float Popup { get; set; }
 
-		public HitTypeWeights(float ground = 0f, float line = 0f, float fly = 0f, float popup = 0f)
+		public AngleWeights(float ground = 0f, float line = 0f, float fly = 0f, float popup = 0f)
 		{
 			Ground = ground;
 			Line = line;
@@ -163,9 +163,9 @@ namespace Basedball
 			Popup = popup;
 		}
 
-		public static HitTypeWeights operator +(HitTypeWeights a, HitTypeWeights b)
+		public static AngleWeights operator +(AngleWeights a, AngleWeights b)
 		{
-			return new HitTypeWeights(
+			return new AngleWeights(
 				a.Ground + b.Ground,
 				a.Line + b.Line,
 				a.Fly + b.Fly,
@@ -173,9 +173,9 @@ namespace Basedball
 			);
 		}
 
-		public HitTypeWeights WithNegativesZeroed()
+		public AngleWeights WithNegativesZeroed()
 		{
-			return new HitTypeWeights(
+			return new AngleWeights(
 				Math.Max(0, Ground),
 				Math.Max(0, Line),
 				Math.Max(0, Fly),
