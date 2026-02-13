@@ -184,20 +184,26 @@ namespace Basedball
         Popup
     }
 
-    public enum Position
-	{
-		StartingPitcher,
-		ReliefPitcher,
-		Closer,
-		Catcher,
+    public enum Force
+    {
+        Weak,
+        Clean,
+        Blast
+    }
+
+    public enum FieldPosition
+    {
+        Pitcher,
+        Catcher,
 		FirstBase,
 		SecondBase,
 		ThirdBase,
+        ShortStop,
 		LeftField,
 		CenterField,
 		RightField,
-		DesignatedHitter
-	}
+        Dugout
+    }
 
     public enum Handedness
     {

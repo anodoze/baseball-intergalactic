@@ -66,6 +66,25 @@ namespace Basedball
 				RightField = Math.Max(0, RightField),
 			};
 		}
+
+		public FieldPosition RollDice(Random random)
+		{
+			var zeroed = WithNegativesZeroed();
+			float total = zeroed.Pitcher + zeroed.Catcher + zeroed.FirstBase + 
+			              zeroed.SecondBase + zeroed.ThirdBase + zeroed.ShortStop +
+			              zeroed.LeftField + zeroed.CenterField + zeroed.RightField;
+			float roll = random.NextSingle() * total;
+			
+			return (roll -= zeroed.Pitcher) < 0 ? FieldPosition.Pitcher
+				: (roll -= zeroed.Catcher) < 0 ? FieldPosition.Catcher
+				: (roll -= zeroed.FirstBase) < 0 ? FieldPosition.FirstBase
+				: (roll -= zeroed.SecondBase) < 0 ? FieldPosition.SecondBase
+				: (roll -= zeroed.ThirdBase) < 0 ? FieldPosition.ThirdBase
+				: (roll -= zeroed.ShortStop) < 0 ? FieldPosition.ShortStop
+				: (roll -= zeroed.LeftField) < 0 ? FieldPosition.LeftField
+				: (roll -= zeroed.CenterField) < 0 ? FieldPosition.CenterField
+				: FieldPosition.RightField;
+		}
 	}
 
 	public struct DirectionWeights
@@ -122,6 +141,23 @@ namespace Basedball
 				Math.Max(0, RightLine)
 			);
 		}
+
+		public Direction RollDice(Random random)
+		{
+			var zeroed = WithNegativesZeroed();
+			float total = zeroed.LeftLine + zeroed.LeftGap + zeroed.LeftCenter + 
+			              zeroed.Center + zeroed.RightCenter + zeroed.RightGap + 
+			              zeroed.RightLine;
+			float roll = random.NextSingle() * total;
+			
+			return (roll -= zeroed.LeftLine) < 0 ? Direction.LeftLine
+				: (roll -= zeroed.LeftGap) < 0 ? Direction.LeftGap
+				: (roll -= zeroed.LeftCenter) < 0 ? Direction.LeftCenter
+				: (roll -= zeroed.Center) < 0 ? Direction.Center
+				: (roll -= zeroed.RightCenter) < 0 ? Direction.RightCenter
+				: (roll -= zeroed.RightGap) < 0 ? Direction.RightGap
+				: Direction.RightLine;
+		}
 	}
 	
 	public struct ForceWeights
@@ -145,6 +181,17 @@ namespace Basedball
 		public ForceWeights WithNegativesZeroed()
 		{
 			return new ForceWeights(Math.Max(0, Weak), Math.Max(0, Clean), Math.Max(0, Blast));
+		}
+
+		public Force RollDice(Random random)
+		{
+			var zeroed = WithNegativesZeroed();
+			float total = zeroed.Weak + zeroed.Clean + zeroed.Blast;
+			float roll = random.NextSingle() * total;
+			
+			return (roll -= zeroed.Weak) < 0 ? Force.Weak
+				: (roll -= zeroed.Clean) < 0 ? Force.Clean
+				: Force.Blast;
 		}
 	}
 
@@ -181,6 +228,18 @@ namespace Basedball
 				Math.Max(0, Fly),
 				Math.Max(0, Popup)
 			);
+		}
+
+		public Angle RollDice(Random random)
+		{
+			var zeroed = WithNegativesZeroed();
+			float total = zeroed.Ground + zeroed.Line + zeroed.Fly + zeroed.Popup;
+			float roll = random.NextSingle() * total;
+			
+			return (roll -= zeroed.Ground) < 0 ? Angle.Ground
+				: (roll -= zeroed.Line) < 0 ? Angle.Line
+				: (roll -= zeroed.Fly) < 0 ? Angle.Fly
+				: Angle.Popup;
 		}
 	}
 
@@ -224,7 +283,7 @@ namespace Basedball
 			);
 		}
 
-		 public PitchOutcome RollDice(Random random)
+		public PitchOutcome RollDice(Random random)
 		{
 			var zeroed = WithNegativesZeroed();
 			float total = zeroed.Ball + zeroed.Looking + zeroed.Contact + zeroed.Swinging;

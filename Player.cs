@@ -5,7 +5,8 @@ namespace Basedball
 		public string Id { get; set; }
 		public string FirstName { get; set; }
 		public string LastName { get; set; }
-		public Position Position { get; set; }
+		public RosterPosition RosterPosition { get; set; }
+		public FieldPosition FieldPosition { get; set; }
 
 		public float Durability { get; set; } // player's overall health/career state
 		public float Composure { get; set; } // player's ingame mental state
@@ -61,12 +62,13 @@ namespace Basedball
 
 		public List<PitchType> Pitches { get; set; } = new List<PitchType>();
 
-		public Player(Position position, Random random)
+		public Player(RosterPosition position, Random random)
 		{
 			Id = Guid.NewGuid().ToString();
 			FirstName = NameData.firstNames[random.Next(NameData.firstNames.Length)];
 			LastName = NameData.lastNames[random.Next(NameData.lastNames.Length)];
-			Position = position;
+			RosterPosition = position;
+			FieldPosition = FieldPosition.Dugout;
 
 			var allPitches = Enum.GetValues<PitchType>();
 			var numPitches = random.Next(1, 5);
@@ -117,6 +119,21 @@ namespace Basedball
 			Dexterity = random.NextSingle() * 0.1f;
 			Precision = random.NextSingle() * 0.1f;
 		}
+	}
+
+	public enum RosterPosition
+	{
+		StartingPitcher,
+		ReliefPitcher,
+		Closer,
+		Catcher,
+		FirstBase,
+		SecondBase,
+		ThirdBase,
+		LeftField,
+		CenterField,
+		RightField,
+		DesignatedHitter
 	}
 
 	public enum PitchType

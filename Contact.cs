@@ -4,21 +4,40 @@ namespace Basedball
 	{
 		public static ContactOutcome Simulate(Player batter, Random random)
 		{
-			// roll for Direction. There are base weights depending on handedness (we're in all-righties world for now), Batters with high Aim are more likely to hit through the gaps. Batters with low Form are more scattershot, liable to foul off. Direction will set the base weights for which fielders might handle the ball.
-            var directionWeights = FieldDefaults.DefaultDirectionWeights[Handedness.Righty];
+			// roll for Direction.
+            var directionWeights = FieldDefaults.DefaultDirectionWeights[Handedness.Righty]; // todo: check batter handedness and assign here
             var batterDirectionWeights = new DirectionWeights(
-                leftGap: batter.Aim,
-                leftCenter: batter.Aim,
-                center: batter.Aim,
-                rightCenter: batter.Aim,
-                rightGap: batter.Aim
+                // leftLine: unsure
+                leftGap: batter.Aim * 1.2f,
+                leftCenter: batter.Aim * 0.5f,
+                center: batter.Aim * 0.5f,
+                rightCenter: batter.Aim * 0.5f,
+                rightGap: batter.Aim * 1.2f
+                //rightLine: unsure
             );
             directionWeights += batterDirectionWeights;
-
-            // roll for Angle - batters with high Form are more likely to hit lines and flies, players with low Form will hit grounders and popups. This modifies the field weights - your catcher is probably not going after fly balls. The hit type determines what skills are needed to field the ball, and is a major part of determining how hard it is to field.
-            // roll for Force (trying to avoid namespace collision with Power, the BODY attribute here). This is determined almost entirely by the batter's Power. This will make one last push on the responsible-fielder weights -- is this fly ball hovering over the shortstop or the CF -- or is it out of the park? this also impacts the difficulty of fielding substantially - the difference between a dribbler and a sharp hop to the outfield. (thought --for airborne stuff, having more power seems just good, but for ground balls, shitty two-foot dribblers and long-rolling outfield hits both seem better for the batter than a "clean" hit right to the shortstop, does that make sense to include?)
+            var direction = directionWeights.RollDice(random);
+            // roll for Angle
+            var angleWeights = FieldDefaults.DefaultAngleWeights[direction];
+            var batterAngleWeights = new AngleWeights(
+                // grounder: unsure
+                line: batter.Form * 1.2f,
+                fly: batter.Form * 0.8f
+                // popup: unsure
+            );
+            angleWeights += batterAngleWeights;
+            var angle = angleWeights.RollDice(random);
+            // roll for Force 
+            var forceWeights = FieldDefaults.DefaultForceWeights[direction];
+            var batterForceWeights = new ForceWeights(
+                // weak: unsure
+                clean: batter.Power * 0.5f,
+                blast: batter.Power * 1.2f
+            );
+            var force = forceWeights.RollDice(random);
             // we now have:
             // the weights to pick the primary fielder (and know the secondary if necessary)
+
             // the difficulty of the fielding attempt (hit type, power)
             // The context to determine outcomes (from direction: mainly relevant for directions 1 and 7, where potential fouls need to be taken into account)
             // possible fielding results:
