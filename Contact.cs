@@ -4,36 +4,39 @@ namespace Basedball
 	{
 		public static ContactOutcome Simulate(Player batter, Random random)
 		{
-			// roll for Direction.
-            var directionWeights = FieldDefaults.DefaultDirectionWeights[Handedness.Righty]; // todo: check batter handedness and assign here
+            // roll for Direction.
+            var directionWeights = FieldDefaults.DefaultDirectionWeights[Handedness.Righty];
             var batterDirectionWeights = new DirectionWeights(
-                // leftLine: unsure
-                leftGap: batter.Aim * 1.2f,
-                leftCenter: batter.Aim * 0.5f,
-                center: batter.Aim * 0.5f,
-                rightCenter: batter.Aim * 0.5f,
-                rightGap: batter.Aim * 1.2f
-                //rightLine: unsure
+                leftLine: -(batter.Aim - 0.5f) * 1.5f,     // low aim = more fouls
+                leftGap: (batter.Aim - 0.5f) * 2.4f,       // aim for the money spots
+                leftCenter: (batter.Aim - 0.5f) * 1.0f,
+                center: 0f,                                 // center is always neutral
+                rightCenter: (batter.Aim - 0.5f) * 1.0f,
+                rightGap: (batter.Aim - 0.5f) * 2.4f,
+                rightLine: -(batter.Aim - 0.5f) * 1.5f
             );
             directionWeights += batterDirectionWeights;
             var direction = directionWeights.RollDice(random);
+
             // roll for Angle
             var angleWeights = FieldDefaults.DefaultAngleWeights[direction];
             var batterAngleWeights = new AngleWeights(
-                // grounder: unsure
-                line: batter.Form * 1.2f,
-                fly: batter.Form * 0.8f
-                // popup: unsure
+                ground: -(batter.Form - 0.5f) * 1.8f,      // bad form tops the ball
+                line: (batter.Form - 0.5f) * 2.4f,         // clean barrel work
+                fly: (batter.Form - 0.5f) * 1.6f,          // elevate properly
+                popup: -(batter.Form - 0.5f) * 1.2f        // mishit under it
             );
             angleWeights += batterAngleWeights;
             var angle = angleWeights.RollDice(random);
+
             // roll for Force 
             var forceWeights = FieldDefaults.DefaultForceWeights[direction];
             var batterForceWeights = new ForceWeights(
-                // weak: unsure
-                clean: batter.Power * 0.5f,
-                blast: batter.Power * 1.2f
+                weak: -(batter.Power - 0.5f) * 2.0f,       // strong guys rarely dribble
+                clean: (batter.Power - 0.5f) * 1.0f,       // moderate scaling
+                blast: (batter.Power - 0.5f) * 2.4f        // power shows up here
             );
+            forceWeights += batterForceWeights;
             var force = forceWeights.RollDice(random);
             // we now have:
             // the weights to pick the primary fielder (and know the secondary if necessary)

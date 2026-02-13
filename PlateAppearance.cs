@@ -110,19 +110,9 @@ namespace Basedball
 			else
 			{
 				zoneWeights.Ball = 0;
-			}
-			;
+			};
 
-			float total =
-				zoneWeights.Ball + zoneWeights.Looking + zoneWeights.Contact + zoneWeights.Swinging;
-			float roll = (float)_random.NextSingle() * total;
-
-			var outcome =
-				(roll -= zoneWeights.Ball) < 0 ? PitchOutcome.Ball
-				: (roll -= zoneWeights.Looking) < 0 ? PitchOutcome.StrikeLooking
-				: (roll -= zoneWeights.Contact) < 0 ? PitchOutcome.Contact
-				: PitchOutcome.StrikeSwinging;
-
+			var outcome = zoneWeights.RollDice(_random);
 			return new PitchResult { Outcome = outcome, Zone = zonePick };
 		}
 
