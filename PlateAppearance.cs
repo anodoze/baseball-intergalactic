@@ -25,7 +25,7 @@ namespace Basedball
 				}
 				else if (result.Outcome is PitchOutcome.Contact)
 				{
-					var contact = Contact.Simulate(random);
+					var contact = Contact.Simulate(batter, random);
 					if (contact is ContactOutcome.Foul)
 					{
 						if (strikeCount < 2)

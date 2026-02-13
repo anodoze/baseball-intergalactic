@@ -223,5 +223,17 @@ namespace Basedball
 				Math.Max(0, Swinging)
 			);
 		}
+
+		 public PitchOutcome RollDice(Random random)
+		{
+			var zeroed = WithNegativesZeroed();
+			float total = zeroed.Ball + zeroed.Looking + zeroed.Contact + zeroed.Swinging;
+			float roll = random.NextSingle() * total;
+			
+			return (roll -= zeroed.Ball) < 0 ? PitchOutcome.Ball
+				: (roll -= zeroed.Looking) < 0 ? PitchOutcome.StrikeLooking
+				: (roll -= zeroed.Contact) < 0 ? PitchOutcome.Contact
+				: PitchOutcome.StrikeSwinging;
+		}
 	}
 }

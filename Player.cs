@@ -124,21 +124,6 @@ namespace Basedball
 		Fastball,
 		Changeup,
 		Curveball,
-		Slider,
-	}
-
-	public enum Position
-	{
-		SP,
-		RP,
-		CL,
-		CA,
-		_1B,
-		_2B,
-		_3B,
-		LF,
-		CF,
-		RF,
-		DH,
+		Slider
 	}
 }

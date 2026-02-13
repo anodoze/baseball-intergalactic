@@ -167,14 +167,37 @@ namespace Basedball
 
     public enum Direction
     {
-        LeftLine = 1,
-        LeftGap = 2,
-        LeftCenter = 3,
-        Center = 4,
-        RightCenter = 5,
-        RightGap = 6,
-        RightLine = 7,
+        LeftLine,
+        LeftGap,
+        LeftCenter,
+        Center,
+        RightCenter,
+        RightGap,
+        RightLine
     }
+
+    public enum Angle
+    {
+        Ground,
+        Line,
+        Fly,
+        Popup
+    }
+
+    public enum Position
+	{
+		StartingPitcher,
+		ReliefPitcher,
+		Closer,
+		Catcher,
+		FirstBase,
+		SecondBase,
+		ThirdBase,
+		LeftField,
+		CenterField,
+		RightField,
+		DesignatedHitter
+	}
 
     public enum Handedness
     {
