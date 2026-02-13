@@ -16,10 +16,13 @@ Bullshit space is large: Any team can win any game - even if it's unlikely
 Manager: Human player of the sim
 Player: Fictional in-game athlete
 
+### Specific Common Design Patterns
+Outcome weights are stored in structs and then modified by circumstance and player attributes. After modifiers are applied, the die is rolled and that result determines the next step.
+
 ## Pitch Model
 
 - Zone-based pitching (1-9 in-zone, 11-14 out-of-zone)
-- Weighted outcomes based on pitch type and zone
+- Weighted ball/strike swinging/strike looking/contact outcomes based on pitch type and zone
 
 What we have:
 - Pitch model where pitcher chooses zone, throws pitch, and outcomes are determined by opposed player attributes setting weights for a final dice roll
@@ -30,27 +33,37 @@ What we're working on:
 - adding information based on contact outcomes (eg. foul that continues the PA vs. catch that ends it)
 
 Down the road: 
-- pitcher and catcher interaction, Framing
+- pitcher and catcher interaction, esp. framing
 
-## Field/Contact Model - bat on ball, now what?
+## Field/Contact Model - bat on ball, now what? - ACTIVE PROJECT
 
-- direction 1-7 (1 and 7 are foul lines, the rest cover the space between, analagous to our pitching zones)
-- angle (ground, line, fly, popup)
-- power (weak, clean, blast)
+### Contact Generation (IMPLEMENTED)
+#### Contact properties:
+- Direction (1-7): Modified by batter Aim. High Aim → gaps, low Aim → fouls
+- Angle (Grounder/Line/Fly/Popup): Modified by batter Form. High Form → lines/flies, low Form → grounders/popups  
+- Force (Weak/Clean/Blast): Modified by batter Power. Determines ball velocity/distance
 
-These determine which defenders are responsible and how difficult the ball is to field
+### Fielding Logic (IN PROGRESS)
+- Choose responsible defender based on contact properties
+- Backup fielder determined by GetBackupFielder() - directional logic based on position
+  - Infield → outfield behind them
+  - Outfield → null (hit wall, auto-retrieve with penalties)
+  - Catcher grounders → corner infielders
+- FieldingAttempt struct contains: PrimaryFielder, SecondaryFielder?, ContactInfo, CanBeFoul bool
+- FieldingOutcomeWeights by Angle: Foul/CaughtOut/Fielded/Bobbled/Miss
+- Will be modified by Force and fielder attributes/skill
 
-What we have:
-- basic weights for each of these categories
-- a toy function that spits out random contact outcomes to test the PA logic
-
-What we're working on:
-- fleshing out contact logic to return foul/catch out/hit outcomes depending on the model above.
+### Still TODO:
+- Foul tips (handle in pitch logic, not fielding)
+- Fielder attribute/skill modifiers on fielding outcomes
+- Throw attempt logic (Arm + Precision vs distance)
+- returning BIP outcomes to the PA logic to determine if it ends (on base/out) or continues (foul)
+- Quality modifiers on "Fielded" outcome (clean vs scramble)
 
 Down the road:
 - work baserunning
 
-## Player Attributes
+## Player Attributes baseline values are 0-1 floats and grow from there
 
 ### BODY Attributes (grow then decline over a player's career)
 - Vision: ball tracking
@@ -122,7 +135,7 @@ Players have Durability representing the state of their career (reduced at the e
 - theoretical maximum career length is 20 seasons, but most players will be in the 6-10 range.
 
 ### Injury
-- Players can be injured. Minor injuries impact performance, and increase the risk of - major injury
+- Players can be injured. Minor injuries impact performance, and increase the risk of major injury
 - Major injuries force a player onto the bench until they recover.
 rare Catastrophic injuries can end a career outright if they happen too late in a career for them to recover.
 
