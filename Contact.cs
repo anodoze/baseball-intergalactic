@@ -2,12 +2,7 @@ namespace Basedball
 {
 	public class Contact
 	{
-		public static ContactOutcome Simulate(
-			Player batter,
-			Team fielders,
-			Dictionary<FieldPosition, int> defenseIndices,
-			Random random
-		)
+		public static ContactInfo GenerateContactInfo(Player batter, Random random)
 		{
 			var directionWeights = FieldDefaults.DefaultDirectionWeights[Handedness.Righty];
 			var batterDirectionWeights = new DirectionWeights(
@@ -41,13 +36,37 @@ namespace Basedball
 			forceWeights += batterForceWeights;
 			var force = forceWeights.RollDice(random);
 
-			var contact = new ContactInfo(direction, angle, force);
+			return new ContactInfo(direction, angle, force);
+		}
 
-			// WE ARE WORKING HERE
-			var fieldingAttempt = PrepareFieldingAttempt(contact, fielders, defenseIndices, random);
-			var fieldingOutcome = RollFieldingOutcome(fieldingAttempt, random);
+		public static ContactOutcome ResolveFielding(
+			FieldingAttempt fieldingAttempt,
+			Team fielding,
+			Dictionary<FieldPosition, int> defenseIndices,
+			Random random
+		)
+		{
+			var primaryOutcome = RollFieldingOutcome(fieldingAttempt, random);
 
-			return throwResolution; // placeholder return
+			// TODO: Display fielding flavor based on primaryOutcome here eventually
+
+			return primaryOutcome switch
+			{
+				FieldingOutcome.Foul => ContactOutcome.Foul,
+				FieldingOutcome.CaughtOut => ContactOutcome.Out,
+				FieldingOutcome.Fielded => ResolveThrow(
+					fieldingAttempt,
+					fielding,
+					defenseIndices,
+					random
+				),
+				FieldingOutcome.Miss when fieldingAttempt.SecondaryFielder != null =>
+					ResolveSecondaryFielder(fieldingAttempt, fielding, defenseIndices, random),
+				FieldingOutcome.Miss => ContactOutcome.Safe,
+				_ => throw new InvalidOperationException(
+					$"Unexpected fielding outcome: {primaryOutcome}"
+				),
+			};
 		}
 
 		private static FieldingOutcome RollFieldingOutcome(FieldingAttempt attempt, Random random)
@@ -69,7 +88,6 @@ namespace Basedball
 					foul: 0f,
 					caughtOut: weights.CaughtOut,
 					fielded: weights.Fielded,
-					bobbled: weights.Bobbled,
 					miss: weights.Miss
 				);
 			}
@@ -84,7 +102,7 @@ namespace Basedball
 			Team fielders,
 			Dictionary<FieldPosition, int> defenseIndices,
 			Random random
-		) //todo: add fielders to main game roster handling
+		)
 		{
 			var defenderWeights = FieldDefaults.DefaultDefenderWeights[contact.Direction];
 
@@ -126,6 +144,7 @@ namespace Basedball
 				),
 				_ => new DefenderWeights(),
 			};
+
 			var forceModifier = contact.Force switch
 			{
 				Force.Weak => new DefenderWeights(
@@ -147,7 +166,7 @@ namespace Basedball
 					secondBase: -0.05f,
 					thirdBase: -0.05f,
 					shortStop: -0.05f,
-					leftField: 0.15f, // deep to the outfield
+					leftField: 0.15f,
 					centerField: 0.15f,
 					rightField: 0.15f
 				),
@@ -186,8 +205,7 @@ namespace Basedball
 			Random random
 		)
 		{
-			// TODO: Actually roll throw based on distance and fielder Arm/Precision
-			// For now: assume throws from infield succeed, outfield fail
+			// TODO: PLACEHOLDER - implement actual throw mechanics based on distance, Arm, Precision
 			var isInfield =
 				attempt.PrimaryFielder.RosterPosition
 				is RosterPosition.Catcher
@@ -206,12 +224,7 @@ namespace Basedball
 			Random random
 		)
 		{
-			// If there's no backup fielder, it's automatically safe
-			if (attempt.SecondaryFielder == null)
-				return ContactOutcome.Safe;
-
 			// Backup gets a fielding attempt with worse odds
-			// For now: just roll again with reduced weights
 			var weights = FieldDefaults.DefaultFieldingWeights[attempt.Contact.Angle];
 
 			// Backup is scrambling - much harder to field cleanly
@@ -219,7 +232,6 @@ namespace Basedball
 				foul: 0f, // no fouls on secondary attempt
 				caughtOut: -0.3f, // harder to catch
 				fielded: -0.5f, // harder to field cleanly
-				bobbled: 0.1f,
 				miss: 0.4f // much more likely to miss
 			);
 			weights += backupModifier;
@@ -230,7 +242,7 @@ namespace Basedball
 			{
 				FieldingOutcome.CaughtOut => ContactOutcome.Out,
 				FieldingOutcome.Fielded => ContactOutcome.Safe, // too late for the out
-				_ => ContactOutcome.Safe, // bobbled or missed
+				_ => ContactOutcome.Safe, // missed
 			};
 		}
 
@@ -256,7 +268,7 @@ namespace Basedball
 					{
 						Direction.LeftLine or Direction.LeftGap or Direction.LeftCenter =>
 							FieldPosition.ThirdBase,
-						Direction.Center => FieldPosition.FirstBase, // todo: add choice when there are baserunners
+						Direction.Center => FieldPosition.FirstBase, // TODO: add choice when there are baserunners
 						Direction.RightCenter or Direction.RightGap or Direction.RightLine =>
 							FieldPosition.FirstBase,
 						_ => null,
@@ -315,7 +327,7 @@ namespace Basedball
 		public float ExitVelocity { get; init; } // mph for flavor text
 		public float HangTime { get; init; } // seconds for fly balls
 
-		// public override string ToString(); // todo: display helper
+		// public override string ToString(); // TODO: display helper
 	}
 
 	public struct FieldingAttempt
@@ -323,14 +335,13 @@ namespace Basedball
 		public Player PrimaryFielder { get; init; }
 		public Player? SecondaryFielder { get; init; }
 		public ContactInfo Contact { get; init; }
-		public bool CanBeFoul { get; init; } // directions 1/7 only
 	}
 
-	public enum ContactOutcome // placeholder, will probably be removed
+	public enum ContactOutcome
 	{
 		Foul,
 		Out,
 		Safe,
-		Homerun,
+		Homerun, // TODO: will eventually need richer data (bases state, runners moved, etc)
 	}
-};
+}

@@ -111,6 +111,9 @@ namespace Basedball
 			int pitcherIndex
 		)
 		{
+			var pitcher = fielding.Pitchers[pitcherIndex];
+			Display.HalfInningStart(batting.Name, pitcher);
+
 			int outs = 0;
 			int lineupIndex = 0;
 
@@ -118,8 +121,6 @@ namespace Basedball
 			{
 				var batter = batting.PositionPlayers[batting.BattingLineup[lineupIndex]];
 				lineupIndex = (lineupIndex + 1) % 9;
-
-				var pitcher = fielding.Pitchers[pitcherIndex];
 
 				var paOutcome = PlateAppearance.Simulate(
 					batter,

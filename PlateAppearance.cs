@@ -10,6 +10,8 @@ namespace Basedball
 			Random random
 		)
 		{
+			Display.NowBatting(batter);
+
 			int ballCount = 0;
 			int strikeCount = 0;
 
@@ -24,37 +26,57 @@ namespace Basedball
 					strikeCount++;
 					Display.Pitch(pitchResult, ballCount, strikeCount);
 					if (strikeCount >= 3)
+					{
+						Display.Strikeout(batter);
 						return PAOutcome.Strikeout;
+					}
 				}
 				else if (pitchResult.Outcome == PitchOutcome.Ball)
 				{
 					ballCount++;
 					Display.Pitch(pitchResult, ballCount, strikeCount);
 					if (ballCount >= 4)
+					{
+						Display.Walk(batter);
 						return PAOutcome.Walk;
+					}
 				}
 				else if (pitchResult.Outcome is PitchOutcome.Contact)
 				{
-					var contact = Contact.Simulate(batter, fielding, defenseIndices, random);
+					var contactInfo = Contact.GenerateContactInfo(batter, random);
+					var fieldingAttempt = Contact.PrepareFieldingAttempt(
+						contactInfo,
+						fielding,
+						defenseIndices,
+						random
+					);
+					var outcome = Contact.ResolveFielding(
+						fieldingAttempt,
+						fielding,
+						defenseIndices,
+						random
+					);
 
-					if (contact is ContactOutcome.Foul)
+					if (outcome == ContactOutcome.Foul)
 					{
 						if (strikeCount < 2)
 							strikeCount++;
-						Console.WriteLine($"Foul Ball! {strikeCount}");
+						Display.Foul(strikeCount);
 					}
-					else if (contact == ContactOutcome.Out)
+					else
 					{
-						return PAOutcome.Out;
-					}
-					else if (contact == ContactOutcome.Safe)
-					{
-						return PAOutcome.Safe;
+						Display.ContactResult(batter, contactInfo, fieldingAttempt, outcome);
+						Console.WriteLine();
+
+						if (outcome == ContactOutcome.Out)
+							return PAOutcome.Out;
+						else if (outcome == ContactOutcome.Safe)
+							return PAOutcome.Safe;
 					}
 				}
 			}
 
-			Console.WriteLine("Plate Appearance did not");
+			Display.Error("Plate Appearance loop exited without resolution");
 			return PAOutcome.SimError;
 		}
 	}

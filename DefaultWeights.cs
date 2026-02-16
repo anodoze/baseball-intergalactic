@@ -139,29 +139,25 @@ namespace Basedball
 					foul: 0f,
 					caughtOut: 0f, // can't catch what's on the ground
 					fielded: 1.5f, // most common outcome
-					bobbled: 0.3f, // bad hops happen
-					miss: 0.2f // gets past you
+					miss: 0.5f // bad hops or gets past you
 				),
 				[Angle.Line] = new FieldingOutcomeWeights(
 					foul: 0f,
 					caughtOut: 0.8f, // hard but possible
 					fielded: 0.4f, // if you don't catch it clean, usually a hit
-					bobbled: 0.15f, // off the glove
-					miss: 0.65f // these scream past people
+					miss: 0.8f // off the glove or screams past
 				),
 				[Angle.Fly] = new FieldingOutcomeWeights(
 					foul: 0f,
 					caughtOut: 1.3f, // routine fly balls should get caught
 					fielded: 0.1f, // rare - ball bounces after you miss
-					bobbled: 0.2f, // off the glove
-					miss: 0.4f // misjudged it
+					miss: 0.6f // misjudged or off the glove
 				),
 				[Angle.Popup] = new FieldingOutcomeWeights(
 					foul: 0f,
 					caughtOut: 1.6f, // easiest catches
 					fielded: 0.05f,
-					bobbled: 0.15f,
-					miss: 0.2f
+					miss: 0.35f // misjudged or dropped
 				),
 			};
 
@@ -172,16 +168,14 @@ namespace Basedball
 					foul: 0f,
 					caughtOut: 0.4f,
 					fielded: 0.3f,
-					bobbled: -0.1f,
-					miss: -0.2f
+					miss: -0.3f
 				),
 				[Force.Clean] = new FieldingOutcomeWeights(), // no modifiers
 				[Force.Blast] = new FieldingOutcomeWeights(
 					foul: 0f,
 					caughtOut: -0.4f,
 					fielded: -0.4f,
-					bobbled: 0.2f,
-					miss: 0.3f
+					miss: 0.5f
 				),
 			};
 	}
