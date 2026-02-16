@@ -5,14 +5,12 @@
 A fantasy baseball simulator with RPG mechanics. Players are fictional with attributes that weight probabilistic outcomes. Emphasis on min-maxing, weird builds, and emergent narratives.
 
 ### Key Design Principles
-
 Probabilistic, not deterministic: Skill weights dice, never guarantees
 Allow unrealistic extremes: operate on anime rules - peak players can run faster, jump higher, and hit harder than any human person.
 Power/Grace as narrative foils: bruisers vs finesse wizards
 Bullshit space is large: Any team can win any game - even if it's unlikely
 
 ### Terminology
-
 Manager: Human player of the sim
 Player: Fictional in-game athlete
 
@@ -26,8 +24,9 @@ Outcome weights are stored in structs and then modified by circumstance and play
 - Inning: Handles both top and bottom half. Runs PAs until 3 outs, twice.
 - PlateAppearance: Manages balls/strikes/contact loop. Returns outcome (Strikeout/Walk/Out/Safe).
 - Contact: Generates contact properties, determines fielding attempt, resolves outcome.
+- Display: class handles output to console
 
-### Team & Roster Management
+### Team & Game State
 Teams have 28 players: 14 position players (9 active + 5 bench), 14 pitchers (5 starters, 4 relievers, 5 bench).
 
 RosterPosition (persistent): Player's default org chart slot. Set during draft/signing, rarely changes except for management decisions or career-ending injuries.
@@ -37,7 +36,6 @@ FieldPosition (ephemeral game state): Where the player is currently playing. Tra
 BattingLineupOrder: Array of indices into Team.PositionPlayers. Persists between games, manager can reorder.
 
 Players are position-agnostic - all have batting, pitching, fielding, and baserunning attributes. A position player *can* pitch in a pinch and vice versa.
-
 
 ## Pitch Model
 - Zone-based pitching (1-9 in-zone, 11-14 out-of-zone)
@@ -77,9 +75,9 @@ What we're working on:
 - Throw attempt logic (Arm + Precision vs distance)
 - returning BIP outcomes to the PA logic to determine if it ends (on base/out) or continues (foul)
 - Quality modifiers on "Fielded" outcome (clean vs scramble)
+- store the state of the bases and track runners and scoring
 
 Down the road:
-- store the state of the bases and track runners and scoring
 - XBH
 - homerun checks
 
@@ -160,4 +158,8 @@ Players have Durability representing the state of their career (reduced at the e
 rare Catastrophic injuries can end a career outright if they happen too late in a career for them to recover.
 
 # Current State:
-Basic game loop functional. One inning simulates (top half only). Contact generates, fielding resolves to Out/Safe/Foul. No baserunning, no scoring, no display, no pitcher changes, no full 9 innings yet.
+Basic game loop functional. One inning simulates (top half only). Contact generates, fielding resolves to Out/Safe/Foul. Many outcomes are weighted but weights are placeholders - we'll tweak after a full game can be played. No baserunning, no scoring, no display, no pitcher changes, no full 9 innings yet.
+
+# FAQ - things I commonly need to clarify
+`Players` get passed around the game by reference using indices. We are avoiding copying because they will eventually need to store persistent effects
+`Fielded` means the fielder has the ball and needs to throw to make an out
