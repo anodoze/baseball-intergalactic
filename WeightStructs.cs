@@ -37,18 +37,17 @@ namespace Basedball
 
 		public static DefenderWeights operator +(DefenderWeights a, DefenderWeights b)
 		{
-			return new DefenderWeights
-			{
-				Pitcher = a.Pitcher + b.Pitcher,
-				Catcher = a.Catcher + b.Catcher,
-				FirstBase = a.FirstBase + b.FirstBase,
-				SecondBase = a.SecondBase + b.SecondBase,
-				ThirdBase = a.ThirdBase + b.ThirdBase,
-				ShortStop = a.ShortStop + b.ShortStop,
-				LeftField = a.LeftField + b.LeftField,
-				CenterField = a.CenterField + b.CenterField,
-				RightField = a.RightField + b.RightField,
-			};
+			return new DefenderWeights(
+				a.Pitcher + b.Pitcher,
+				a.Catcher + b.Catcher,
+				a.FirstBase + b.FirstBase,
+				a.SecondBase + b.SecondBase,
+				a.ThirdBase + b.ThirdBase,
+				a.ShortStop + b.ShortStop,
+				a.LeftField + b.LeftField,
+				a.CenterField + b.CenterField,
+				a.RightField + b.RightField
+			);
 		}
 
 		public DefenderWeights WithNegativesZeroed()
@@ -70,11 +69,18 @@ namespace Basedball
 		public FieldPosition RollDice(Random random)
 		{
 			var zeroed = WithNegativesZeroed();
-			float total = zeroed.Pitcher + zeroed.Catcher + zeroed.FirstBase + 
-			              zeroed.SecondBase + zeroed.ThirdBase + zeroed.ShortStop +
-			              zeroed.LeftField + zeroed.CenterField + zeroed.RightField;
+			float total =
+				zeroed.Pitcher
+				+ zeroed.Catcher
+				+ zeroed.FirstBase
+				+ zeroed.SecondBase
+				+ zeroed.ThirdBase
+				+ zeroed.ShortStop
+				+ zeroed.LeftField
+				+ zeroed.CenterField
+				+ zeroed.RightField;
 			float roll = random.NextSingle() * total;
-			
+
 			return (roll -= zeroed.Pitcher) < 0 ? FieldPosition.Pitcher
 				: (roll -= zeroed.Catcher) < 0 ? FieldPosition.Catcher
 				: (roll -= zeroed.FirstBase) < 0 ? FieldPosition.FirstBase
@@ -145,11 +151,16 @@ namespace Basedball
 		public Direction RollDice(Random random)
 		{
 			var zeroed = WithNegativesZeroed();
-			float total = zeroed.LeftLine + zeroed.LeftGap + zeroed.LeftCenter + 
-			              zeroed.Center + zeroed.RightCenter + zeroed.RightGap + 
-			              zeroed.RightLine;
+			float total =
+				zeroed.LeftLine
+				+ zeroed.LeftGap
+				+ zeroed.LeftCenter
+				+ zeroed.Center
+				+ zeroed.RightCenter
+				+ zeroed.RightGap
+				+ zeroed.RightLine;
 			float roll = random.NextSingle() * total;
-			
+
 			return (roll -= zeroed.LeftLine) < 0 ? Direction.LeftLine
 				: (roll -= zeroed.LeftGap) < 0 ? Direction.LeftGap
 				: (roll -= zeroed.LeftCenter) < 0 ? Direction.LeftCenter
@@ -159,7 +170,7 @@ namespace Basedball
 				: Direction.RightLine;
 		}
 	}
-	
+
 	public struct ForceWeights
 	{
 		public float Weak { get; set; }
@@ -188,7 +199,7 @@ namespace Basedball
 			var zeroed = WithNegativesZeroed();
 			float total = zeroed.Weak + zeroed.Clean + zeroed.Blast;
 			float roll = random.NextSingle() * total;
-			
+
 			return (roll -= zeroed.Weak) < 0 ? Force.Weak
 				: (roll -= zeroed.Clean) < 0 ? Force.Clean
 				: Force.Blast;
@@ -235,7 +246,7 @@ namespace Basedball
 			var zeroed = WithNegativesZeroed();
 			float total = zeroed.Ground + zeroed.Line + zeroed.Fly + zeroed.Popup;
 			float roll = random.NextSingle() * total;
-			
+
 			return (roll -= zeroed.Ground) < 0 ? Angle.Ground
 				: (roll -= zeroed.Line) < 0 ? Angle.Line
 				: (roll -= zeroed.Fly) < 0 ? Angle.Fly
@@ -247,8 +258,8 @@ namespace Basedball
 	{
 		public float Ball { get; set; }
 		public float Looking { get; set; }
-		public float Contact { get; init; }
-		public float Swinging { get; init; }
+		public float Contact { get; set; }
+		public float Swinging { get; set; }
 
 		public ZoneWeights(
 			float ball = 0f,
@@ -288,7 +299,7 @@ namespace Basedball
 			var zeroed = WithNegativesZeroed();
 			float total = zeroed.Ball + zeroed.Looking + zeroed.Contact + zeroed.Swinging;
 			float roll = random.NextSingle() * total;
-			
+
 			return (roll -= zeroed.Ball) < 0 ? PitchOutcome.Ball
 				: (roll -= zeroed.Looking) < 0 ? PitchOutcome.StrikeLooking
 				: (roll -= zeroed.Contact) < 0 ? PitchOutcome.Contact
@@ -319,7 +330,10 @@ namespace Basedball
 			Miss = miss;
 		}
 
-		public static FieldingOutcomeWeights operator +(FieldingOutcomeWeights a, FieldingOutcomeWeights b)
+		public static FieldingOutcomeWeights operator +(
+			FieldingOutcomeWeights a,
+			FieldingOutcomeWeights b
+		)
 		{
 			return new FieldingOutcomeWeights(
 				a.Foul + b.Foul,
@@ -344,10 +358,10 @@ namespace Basedball
 		public FieldingOutcome RollDice(Random random)
 		{
 			var zeroed = WithNegativesZeroed();
-			float total = zeroed.Foul + zeroed.CaughtOut + zeroed.Fielded + 
-						zeroed.Bobbled + zeroed.Miss;
+			float total =
+				zeroed.Foul + zeroed.CaughtOut + zeroed.Fielded + zeroed.Bobbled + zeroed.Miss;
 			float roll = random.NextSingle() * total;
-			
+
 			return (roll -= zeroed.Foul) < 0 ? FieldingOutcome.Foul
 				: (roll -= zeroed.CaughtOut) < 0 ? FieldingOutcome.CaughtOut
 				: (roll -= zeroed.Fielded) < 0 ? FieldingOutcome.Fielded

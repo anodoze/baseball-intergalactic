@@ -6,7 +6,6 @@ namespace Basedball
 		public string FirstName { get; set; }
 		public string LastName { get; set; }
 		public RosterPosition RosterPosition { get; set; }
-		public FieldPosition FieldPosition { get; set; }
 
 		public float Durability { get; set; } // player's overall health/career state
 		public float Composure { get; set; } // player's ingame mental state
@@ -29,7 +28,6 @@ namespace Basedball
 		public float Grit { get; set; } // how well a player can weather Unlucky events, improves performance at low Stamina
 
 		// Skill
-
 		// batting
 		public float Discipline { get; set; } // Batter's ability to hold back outside the strike zone
 		public float Attack { get; set; } // Batter's willingness to swing
@@ -60,7 +58,7 @@ namespace Basedball
 		public float Dexterity { get; set; } // Ability to field squirrely ground balls, and tag out slippery baserunners
 		public float Precision { get; set; } // Ability to throw with precision to other teammates
 
-		public List<PitchType> Pitches { get; set; } = new List<PitchType>();
+		public List<PitchType> Pitches { get; set; } = [];
 
 		public Player(RosterPosition position, Random random)
 		{
@@ -68,7 +66,6 @@ namespace Basedball
 			FirstName = NameData.firstNames[random.Next(NameData.firstNames.Length)];
 			LastName = NameData.lastNames[random.Next(NameData.lastNames.Length)];
 			RosterPosition = position;
-			FieldPosition = FieldPosition.Dugout;
 
 			var allPitches = Enum.GetValues<PitchType>();
 			var numPitches = random.Next(1, 5);
@@ -90,7 +87,7 @@ namespace Basedball
 			Esprit = random.NextSingle() * 0.1f;
 			Aggression = random.NextSingle() * 0.1f;
 			Judgement = random.NextSingle() * 0.1f;
-
+			Wisdom = random.NextSingle() * 0.1f;
 			Superstition = random.NextSingle() * 0.1f;
 			Grit = random.NextSingle() * 0.1f;
 
@@ -106,6 +103,7 @@ namespace Basedball
 			Velocity = random.NextSingle() * 0.1f;
 			Control = random.NextSingle() * 0.1f;
 			Movement = random.NextSingle() * 0.1f;
+			Stuff = random.NextSingle() * 0.1f;
 			Presence = random.NextSingle() * 0.1f;
 
 			Sprint = random.NextSingle() * 0.1f;
@@ -130,10 +128,13 @@ namespace Basedball
 		FirstBase,
 		SecondBase,
 		ThirdBase,
+		ShortStop,
 		LeftField,
 		CenterField,
 		RightField,
-		DesignatedHitter
+		DesignatedHitter,
+		BenchBatter,
+		BenchPitcher,
 	}
 
 	public enum PitchType
@@ -141,6 +142,6 @@ namespace Basedball
 		Fastball,
 		Changeup,
 		Curveball,
-		Slider
+		Slider,
 	}
 }

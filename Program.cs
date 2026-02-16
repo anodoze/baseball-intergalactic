@@ -1,16 +1,11 @@
 ﻿using Basedball;
 
-Random _random = new Random();
+Random random = new Random();
+string awayName = "Louisville Sluggers";
+string homeName = "New York Aliena";
+var awayTeam = TeamGenerator.GenerateTeam(awayName, random);
+var homeTeam = TeamGenerator.GenerateTeam(homeName, random);
 
-var batter = new Player(Position.CF, _random);
-var pitcher = new Player(Position.SP, _random);
+var game = new Game(homeTeam, awayTeam, random);
 
-Console.WriteLine(
-	$"{pitcher.FirstName} {pitcher.LastName} vs. {batter.FirstName} {batter.LastName}"
-);
-
-for (int i = 0; i < 5; i++)
-{
-	var pA = PlateAppearance.Simulate(batter, pitcher, _random);
-	Console.WriteLine(pA.ToString());
-}
+game.Play();

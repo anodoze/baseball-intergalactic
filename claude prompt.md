@@ -19,41 +19,59 @@ Player: Fictional in-game athlete
 ### Specific Common Design Patterns
 Outcome weights are stored in structs and then modified by circumstance and player attributes. After modifiers are applied, the die is rolled and that result determines the next step.
 
-## Pitch Model
+## Architecture
 
+### Game State Hierarchy
+- Game: Owns teams, rosters, active defensive assignments (via indices), and scoreboard. Runs innings.
+- Inning: Handles both top and bottom half. Runs PAs until 3 outs, twice.
+- PlateAppearance: Manages balls/strikes/contact loop. Returns outcome (Strikeout/Walk/Out/Safe).
+- Contact: Generates contact properties, determines fielding attempt, resolves outcome.
+
+### Team & Roster Management
+Teams have 28 players: 14 position players (9 active + 5 bench), 14 pitchers (5 starters, 4 relievers, 5 bench).
+
+RosterPosition (persistent): Player's default org chart slot. Set during draft/signing, rarely changes except for management decisions or career-ending injuries.
+
+FieldPosition (ephemeral game state): Where the player is currently playing. Tracked via indices in Game, discarded at end of game. Allows mid-game substitutions without mutating the roster.
+
+BattingLineupOrder: Array of indices into Team.PositionPlayers. Persists between games, manager can reorder.
+
+Players are position-agnostic - all have batting, pitching, fielding, and baserunning attributes. A position player *can* pitch in a pinch and vice versa.
+
+
+## Pitch Model
 - Zone-based pitching (1-9 in-zone, 11-14 out-of-zone)
 - Weighted ball/strike swinging/strike looking/contact outcomes based on pitch type and zone
-
-What we have:
 - Pitch model where pitcher chooses zone, throws pitch, and outcomes are determined by opposed player attributes setting weights for a final dice roll
 - PA loop that tracks balls, strikes, and contact
 
 What we're working on: 
-- Pitch types and choices - types TBD
-- adding information based on contact outcomes (eg. foul that continues the PA vs. catch that ends it)
+- Pitch types with different characteristics
+- Pitcher choices depending on pitch mix, attributes, and opposing batter
 
 Down the road: 
 - pitcher and catcher interaction, esp. framing
 
 ## Field/Contact Model - bat on ball, now what? - ACTIVE PROJECT
 
-### Contact Generation (IMPLEMENTED)
+### Contact Generation
 #### Contact properties:
 - Direction (1-7): Modified by batter Aim. High Aim → gaps, low Aim → fouls
 - Angle (Grounder/Line/Fly/Popup): Modified by batter Form. High Form → lines/flies, low Form → grounders/popups  
 - Force (Weak/Clean/Blast): Modified by batter Power. Determines ball velocity/distance
 
-### Fielding Logic (IN PROGRESS)
-- Choose responsible defender based on contact properties
+### Fielding - ACTIVE PROJECT
+- Choose responsible defender based on contact properties (Direction/Angle/Force modify defender weights)
 - Backup fielder determined by GetBackupFielder() - directional logic based on position
   - Infield → outfield behind them
-  - Outfield → null (hit wall, auto-retrieve with penalties)
+  - Outfield → null (hit wall, auto-safe)
   - Catcher grounders → corner infielders
-- FieldingAttempt struct contains: PrimaryFielder, SecondaryFielder?, ContactInfo, CanBeFoul bool
+- FieldingAttempt contains: PrimaryFielder, SecondaryFielder?, ContactInfo
 - FieldingOutcomeWeights by Angle: Foul/CaughtOut/Fielded/Bobbled/Miss
-- Will be modified by Force and fielder attributes/skill
+- Force modifiers apply (Weak easier to field, Blast harder)
+- Contact.Simulate returns ContactOutcome: Foul/Out/Safe
 
-### Still TODO:
+What we're working on:
 - Foul tips (handle in pitch logic, not fielding)
 - Fielder attribute/skill modifiers on fielding outcomes
 - Throw attempt logic (Arm + Precision vs distance)
@@ -61,9 +79,11 @@ Down the road:
 - Quality modifiers on "Fielded" outcome (clean vs scramble)
 
 Down the road:
-- work baserunning
+- store the state of the bases and track runners and scoring
+- XBH
+- homerun checks
 
-## Player Attributes baseline values are 0-1 floats and grow from there
+## Player Attributes - baseline values are 0-1 floats and grow from there
 
 ### BODY Attributes (grow then decline over a player's career)
 - Vision: ball tracking
@@ -127,7 +147,7 @@ Managers draft a full team at the start of their first season (batters, pitchers
 - no plans for player trading between managers
 
 ### Player growth
-Players have Durability representing the state of their career (reduced at the end of the season, and by events in/out of game)
+Players have Durability representing the state of their career (reduced at the end of every season, and by events in/out of game)
 - fast-growing rookies
 - peak players with high SKILL and BODY 
 - aging players - BODY will decline, MIND and SKILL can still grow, if slower. 
@@ -139,5 +159,5 @@ Players have Durability representing the state of their career (reduced at the e
 - Major injuries force a player onto the bench until they recover.
 rare Catastrophic injuries can end a career outright if they happen too late in a career for them to recover.
 
-# Active Problem:
-Implementing field logic based on our model
+# Current State:
+Basic game loop functional. One inning simulates (top half only). Contact generates, fielding resolves to Out/Safe/Foul. No baserunning, no scoring, no display, no pitcher changes, no full 9 innings yet.

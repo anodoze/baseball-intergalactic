@@ -2,49 +2,54 @@ namespace Basedball
 {
 	public class PlateAppearance
 	{
-		private Random _random = new Random();
-
-		public static PAOutcome Simulate(Player batter, Player pitcher, Random random)
+		public static PAOutcome Simulate(
+			Player batter,
+			Player pitcher,
+			Team fielding,
+			Dictionary<FieldPosition, int> defenseIndices,
+			Random random
+		)
 		{
 			int ballCount = 0;
 			int strikeCount = 0;
-			bool BIP = false;
 
-			while (strikeCount < 3 && ballCount < 4 && BIP == false)
+			while (strikeCount < 3 && ballCount < 4)
 			{
-				var result = Pitch.ThrowPitch(batter, pitcher, random);
+				var pitchResult = Pitch.ThrowPitch(batter, pitcher, random);
 
-				if (result.Outcome is PitchOutcome.StrikeLooking or PitchOutcome.StrikeSwinging)
+				if (
+					pitchResult.Outcome is PitchOutcome.StrikeLooking or PitchOutcome.StrikeSwinging
+				)
 				{
 					strikeCount++;
-					Display.Pitch(result, ballCount, strikeCount);
-					if (strikeCount > 2)
-					{
+					Display.Pitch(pitchResult, ballCount, strikeCount);
+					if (strikeCount >= 3)
 						return PAOutcome.Strikeout;
-					}
 				}
-				else if (result.Outcome is PitchOutcome.Contact)
+				else if (pitchResult.Outcome == PitchOutcome.Ball)
 				{
-					var contact = Contact.Simulate(batter, random);
+					ballCount++;
+					Display.Pitch(pitchResult, ballCount, strikeCount);
+					if (ballCount >= 4)
+						return PAOutcome.Walk;
+				}
+				else if (pitchResult.Outcome is PitchOutcome.Contact)
+				{
+					var contact = Contact.Simulate(batter, fielding, defenseIndices, random);
+
 					if (contact is ContactOutcome.Foul)
 					{
 						if (strikeCount < 2)
 							strikeCount++;
 						Console.WriteLine($"Foul Ball! {strikeCount}");
 					}
-					else if (contact is ContactOutcome.BIP)
+					else if (contact == ContactOutcome.Out)
 					{
-						BIP = true;
-						return PAOutcome.Play;
+						return PAOutcome.Out;
 					}
-				}
-				else if (result.Outcome == PitchOutcome.Ball)
-				{
-					ballCount++;
-					Display.Pitch(result, ballCount, strikeCount);
-					if (ballCount > 3)
+					else if (contact == ContactOutcome.Safe)
 					{
-						return PAOutcome.Walk;
+						return PAOutcome.Safe;
 					}
 				}
 			}
@@ -77,13 +82,13 @@ namespace Basedball
 			[14] = new ZoneWeights(ball: 0.55f, contact: 0.25f, swinging: 0.20f), // Inside (RHH vs RHP)
 		};
 
-		public static PitchResult ThrowPitch(Player pitcher, Player batter, Random _random)
+		public static PitchResult ThrowPitch(Player pitcher, Player batter, Random random)
 		{
 			// select pitch
 			// balk?
 			// select zone
 			// int cornerPick = new[] { 1, 3, 7, 9 }[_random.Next(4)];
-			int zonePick = new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14 }[_random.Next(13)];
+			int zonePick = new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14 }[random.Next(13)];
 			var zoneWeights = DefaultZoneWeights[zonePick];
 			var batterWeights = new ZoneWeights(
 				batter.Discipline * 2.0f,
@@ -102,7 +107,6 @@ namespace Basedball
 			zoneWeights += batterWeights;
 			zoneWeights += pitcherWeights;
 
-			// modify weights to account for zone - no strikes looking out of the zone, no balls in the zone
 			if (zonePick is 11 or 12 or 13 or 14)
 			{
 				zoneWeights.Looking = 0;
@@ -110,12 +114,12 @@ namespace Basedball
 			else
 			{
 				zoneWeights.Ball = 0;
-			};
+			}
 
-			var outcome = zoneWeights.RollDice(_random);
+			var outcome = zoneWeights.RollDice(random);
 			return new PitchResult { Outcome = outcome, Zone = zonePick };
 		}
-        // todo: add foul tips at some point?
+		// todo: add foul tips at some point?
 		// runners may attempt to steal!
 		// notice?
 		// throw them out?
@@ -142,8 +146,9 @@ namespace Basedball
 	{
 		Strikeout,
 		Walk,
-		Play,
 		SimError,
+		Out,
+		Safe,
 	}
 	//RUNNERS
 	// judgement: try to advance?
