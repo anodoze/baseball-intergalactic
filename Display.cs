@@ -39,7 +39,7 @@ public static class Display
 		Player batter,
 		ContactInfo contact,
 		FieldingAttempt attempt,
-		ContactOutcome outcome
+		PAOutcome outcome
 	)
 	{
 		// First line: what happened with the bat
@@ -67,7 +67,7 @@ public static class Display
 		Console.WriteLine($"{batter.FirstName} {batter.LastName} {angleDesc} {directionDesc}.");
 
 		// Second line: what happened with the defense
-		if (outcome == ContactOutcome.Foul)
+		if (outcome.IsFoul)
 		{
 			Console.WriteLine("Foul ball.");
 			return;
@@ -89,7 +89,7 @@ public static class Display
 			_ => attempt.PrimaryFielder.RosterPosition.ToString(),
 		};
 
-		if (outcome == ContactOutcome.Out)
+		if (outcome.Outs > 0)
 		{
 			string outType = contact.Angle switch
 			{
@@ -103,7 +103,7 @@ public static class Display
 				$"{batter.FirstName} {batter.LastName} {outType} to {fielderPos} {attempt.PrimaryFielder.FirstName} {attempt.PrimaryFielder.LastName}."
 			);
 		}
-		else if (outcome == ContactOutcome.Safe)
+		else
 		{
 			Console.WriteLine($"{batter.FirstName} {batter.LastName} reaches safely."); // TODO: single/double/triple once we track that
 		}

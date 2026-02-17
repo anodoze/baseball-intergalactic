@@ -300,16 +300,17 @@ public class Inning
 				pitcher,
 				fielding,
 				defenseIndices,
+				_runners,
 				_random
 			);
 
-			if (paOutcome == PAOutcome.Strikeout || paOutcome == PAOutcome.Out)
+			outs += paOutcome.Outs;
+
+			if (paOutcome.PAType != PAResultType.Strikeout && !paOutcome.IsFoul)
 			{
-				outs++;
-			}
-			else if (paOutcome == PAOutcome.Safe)
-			{
-				// todo: update PAOutcomes to return rich field information including base state. Fielding logic lives in Contact.cs
+				_runners = paOutcome.RunnersOnBase;
+				// TODO: display runs scored
+				// TODO: track runs on scoreboard
 			}
 		}
 	}
@@ -550,6 +551,7 @@ public class PlateAppearance
 		Player pitcher,
 		Team fielding,
 		Dictionary<FieldPosition, int> defenseIndices,
+		Dictionary<Base, int> runners,
 		Random random
 	)
 	{
@@ -557,6 +559,7 @@ public class PlateAppearance
 
 		int ballCount = 0;
 		int strikeCount = 0;
+		PAOutcome outcome;
 
 		while (strikeCount < 3 && ballCount < 4)
 		{
@@ -569,17 +572,17 @@ public class PlateAppearance
 				if (strikeCount >= 3)
 				{
 					Display.Strikeout(batter);
-					return PAOutcome.Strikeout;
+					return new PAOutcome(paType: PAResultType.Strikeout);
 				}
 			}
-			else if (pitchResult.Outcome == PitchOutcome.Ball)
+			else if (pitchResult.Outcome is PitchOutcome.Ball)
 			{
 				ballCount++;
 				Display.Pitch(pitchResult, ballCount, strikeCount);
 				if (ballCount >= 4)
 				{
 					Display.Walk(batter);
-					return PAOutcome.Walk;
+					return new PAOutcome(paType: PAResultType.Walk);
 				}
 			}
 			else if (pitchResult.Outcome is PitchOutcome.Contact)
@@ -591,14 +594,15 @@ public class PlateAppearance
 					defenseIndices,
 					random
 				);
-				var outcome = Contact.ResolveFielding(
+				outcome = Contact.ResolveFielding(
 					fieldingAttempt,
 					fielding,
 					defenseIndices,
+					runners,
 					random
 				);
 
-				if (outcome == ContactOutcome.Foul)
+				if (outcome.IsFoul)
 				{
 					if (strikeCount < 2)
 						strikeCount++;
@@ -606,19 +610,12 @@ public class PlateAppearance
 				}
 				else
 				{
-					Display.ContactResult(batter, contactInfo, fieldingAttempt, outcome);
-					Console.WriteLine();
-
-					if (outcome == ContactOutcome.Out)
-						return PAOutcome.Out;
-					else if (outcome == ContactOutcome.Safe)
-						return PAOutcome.Safe;
+					return outcome;
 				}
 			}
 		}
-
 		Display.Error("Plate Appearance loop exited without resolution");
-		return PAOutcome.SimError;
+		return new PAOutcome(paType: PAResultType.SimError, outs: 0);
 	}
 }
 
@@ -705,14 +702,6 @@ public struct PitchResult
 	// pitch speed
 }
 
-public enum PAOutcome
-{
-	Strikeout,
-	Walk,
-	SimError,
-	Out,
-	Safe,
-}
 //RUNNERS
 // judgement: try to advance?
 // speed: advancement success
@@ -760,10 +749,11 @@ public class Contact
 		return new ContactInfo(direction, angle, force);
 	}
 
-	public static ContactOutcome ResolveFielding(
+	public static PAOutcome ResolveFielding(
 		FieldingAttempt fieldingAttempt,
 		Team fielding,
 		Dictionary<FieldPosition, int> defenseIndices,
+		Dictionary<Base, int> runners,
 		Random random
 	)
 	{
@@ -771,23 +761,33 @@ public class Contact
 
 		// TODO: Display fielding flavor based on primaryOutcome here eventually
 
-		return primaryOutcome switch
+		var paOutcome = primaryOutcome switch
 		{
-			FieldingOutcome.Foul => ContactOutcome.Foul,
-			FieldingOutcome.CaughtOut => ContactOutcome.Out,
+			FieldingOutcome.Foul => new PAOutcome(isFoul: true),
+			FieldingOutcome.CaughtOut => new PAOutcome(
+				outs: 1,
+				runners: runners,
+				paType: PAResultType.BallInPlay
+			),
 			FieldingOutcome.Fielded => ResolveThrow(
 				fieldingAttempt,
 				fielding,
 				defenseIndices,
+				runners,
 				random
 			),
 			FieldingOutcome.Miss when fieldingAttempt.SecondaryFielder != null =>
-				ResolveSecondaryFielder(fieldingAttempt, fielding, defenseIndices, random),
-			FieldingOutcome.Miss => ContactOutcome.Safe,
+				ResolveSecondaryFielder(fieldingAttempt, fielding, defenseIndices, runners, random),
+			FieldingOutcome.Miss => new PAOutcome(
+				runners: runners,
+				paType: PAResultType.BallInPlay
+			),
 			_ => throw new InvalidOperationException(
 				$"Unexpected fielding outcome: {primaryOutcome}"
 			),
 		};
+
+		return paOutcome;
 	}
 
 	private static FieldingOutcome RollFieldingOutcome(FieldingAttempt attempt, Random random)
@@ -908,10 +908,11 @@ public class Contact
 		};
 	}
 
-	private static ContactOutcome ResolveThrow(
+	private static PAOutcome ResolveThrow(
 		FieldingAttempt attempt,
 		Team fielding,
 		Dictionary<FieldPosition, int> defenseIndices,
+		Dictionary<Base, int> runners,
 		Random random
 	)
 	{
@@ -924,13 +925,16 @@ public class Contact
 				or RosterPosition.ThirdBase
 				or RosterPosition.ShortStop;
 
-		return isInfield ? ContactOutcome.Out : ContactOutcome.Safe;
+		return isInfield
+			? new PAOutcome(outs: 1, runners: runners, paType: PAResultType.BallInPlay)
+			: new PAOutcome(runners: runners, paType: PAResultType.BallInPlay);
 	}
 
-	private static ContactOutcome ResolveSecondaryFielder(
+	private static PAOutcome ResolveSecondaryFielder(
 		FieldingAttempt attempt,
 		Team fielding,
 		Dictionary<FieldPosition, int> defenseIndices,
+		Dictionary<Base, int> runners,
 		Random random
 	)
 	{
@@ -945,14 +949,23 @@ public class Contact
 		);
 		weights += backupModifier;
 
-		var outcome = weights.RollDice(random);
+		var fieldingOutcome = weights.RollDice(random);
 
-		return outcome switch
+		var paOutcome = fieldingOutcome switch
 		{
-			FieldingOutcome.CaughtOut => ContactOutcome.Out,
-			FieldingOutcome.Fielded => ContactOutcome.Safe, // too late for the out
-			_ => ContactOutcome.Safe, // missed
+			FieldingOutcome.CaughtOut => new PAOutcome(
+				outs: 1,
+				runners: runners,
+				paType: PAResultType.BallInPlay
+			),
+			FieldingOutcome.Fielded => new PAOutcome(
+				runners: runners,
+				paType: PAResultType.BallInPlay
+			), // needs bases
+			_ => new PAOutcome(paType: PAResultType.BallInPlay), // missed, needs bases
 		};
+
+		return paOutcome;
 	}
 
 	public static FieldPosition? GetBackupFielder(
@@ -1040,11 +1053,35 @@ public struct FieldingAttempt
 	public ContactInfo Contact { get; init; }
 }
 
-public enum ContactOutcome
+public struct PAOutcome
 {
-	Foul,
-	Out,
-	Safe,
-	Homerun, // not yet implemented
+	public bool IsFoul { get; init; } // we need to check this first, so that basestate does not get modified in case of fouls
+	public Dictionary<Base, int> RunnersOnBase { get; init; } // null if foul
+	public int RunsScored { get; init; }
+	public int Outs { get; init; } // 0, 1, or 2 (double plays)
+	public PAResultType PAType { get; init; }
+
+	public PAOutcome(
+		bool isFoul = false,
+		Dictionary<Base, int>? runners = null,
+		int runs = 0,
+		int outs = 0,
+		PAResultType paType = PAResultType.BallInPlay
+	)
+	{
+		IsFoul = isFoul;
+		RunnersOnBase = runners ?? new Dictionary<Base, int>();
+		RunsScored = runs;
+		Outs = outs;
+		PAType = paType;
+	}
+}
+
+public enum PAResultType
+{
+	Strikeout,
+	Walk,
+	BallInPlay,
+	SimError,
 }
 

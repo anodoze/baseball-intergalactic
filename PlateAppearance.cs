@@ -7,6 +7,7 @@ public class PlateAppearance
 		Player pitcher,
 		Team fielding,
 		Dictionary<FieldPosition, int> defenseIndices,
+		Dictionary<Base, int> runners,
 		Random random
 	)
 	{
@@ -14,6 +15,7 @@ public class PlateAppearance
 
 		int ballCount = 0;
 		int strikeCount = 0;
+		PAOutcome outcome;
 
 		while (strikeCount < 3 && ballCount < 4)
 		{
@@ -26,17 +28,17 @@ public class PlateAppearance
 				if (strikeCount >= 3)
 				{
 					Display.Strikeout(batter);
-					return PAOutcome.Strikeout;
+					return new PAOutcome(paType: PAResultType.Strikeout);
 				}
 			}
-			else if (pitchResult.Outcome == PitchOutcome.Ball)
+			else if (pitchResult.Outcome is PitchOutcome.Ball)
 			{
 				ballCount++;
 				Display.Pitch(pitchResult, ballCount, strikeCount);
 				if (ballCount >= 4)
 				{
 					Display.Walk(batter);
-					return PAOutcome.Walk;
+					return new PAOutcome(paType: PAResultType.Walk);
 				}
 			}
 			else if (pitchResult.Outcome is PitchOutcome.Contact)
@@ -48,14 +50,15 @@ public class PlateAppearance
 					defenseIndices,
 					random
 				);
-				var outcome = Contact.ResolveFielding(
+				outcome = Contact.ResolveFielding(
 					fieldingAttempt,
 					fielding,
 					defenseIndices,
+					runners,
 					random
 				);
 
-				if (outcome == ContactOutcome.Foul)
+				if (outcome.IsFoul)
 				{
 					if (strikeCount < 2)
 						strikeCount++;
@@ -63,19 +66,12 @@ public class PlateAppearance
 				}
 				else
 				{
-					Display.ContactResult(batter, contactInfo, fieldingAttempt, outcome);
-					Console.WriteLine();
-
-					if (outcome == ContactOutcome.Out)
-						return PAOutcome.Out;
-					else if (outcome == ContactOutcome.Safe)
-						return PAOutcome.Safe;
+					return outcome;
 				}
 			}
 		}
-
 		Display.Error("Plate Appearance loop exited without resolution");
-		return PAOutcome.SimError;
+		return new PAOutcome(paType: PAResultType.SimError, outs: 0);
 	}
 }
 
@@ -162,14 +158,6 @@ public struct PitchResult
 	// pitch speed
 }
 
-public enum PAOutcome
-{
-	Strikeout,
-	Walk,
-	SimError,
-	Out,
-	Safe,
-}
 //RUNNERS
 // judgement: try to advance?
 // speed: advancement success

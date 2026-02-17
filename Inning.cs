@@ -64,16 +64,17 @@ public class Inning
 				pitcher,
 				fielding,
 				defenseIndices,
+				_runners,
 				_random
 			);
 
-			if (paOutcome == PAOutcome.Strikeout || paOutcome == PAOutcome.Out)
+			outs += paOutcome.Outs;
+
+			if (paOutcome.PAType != PAResultType.Strikeout && !paOutcome.IsFoul)
 			{
-				outs++;
-			}
-			else if (paOutcome == PAOutcome.Safe)
-			{
-				// todo: update PAOutcomes to return rich field information including base state. Fielding logic lives in Contact.cs
+				_runners = paOutcome.RunnersOnBase;
+				// TODO: display runs scored
+				// TODO: track runs on scoreboard
 			}
 		}
 	}

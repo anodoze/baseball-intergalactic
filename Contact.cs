@@ -39,10 +39,11 @@ public class Contact
 		return new ContactInfo(direction, angle, force);
 	}
 
-	public static ContactOutcome ResolveFielding(
+	public static PAOutcome ResolveFielding(
 		FieldingAttempt fieldingAttempt,
 		Team fielding,
 		Dictionary<FieldPosition, int> defenseIndices,
+		Dictionary<Base, int> runners,
 		Random random
 	)
 	{
@@ -50,23 +51,33 @@ public class Contact
 
 		// TODO: Display fielding flavor based on primaryOutcome here eventually
 
-		return primaryOutcome switch
+		var paOutcome = primaryOutcome switch
 		{
-			FieldingOutcome.Foul => ContactOutcome.Foul,
-			FieldingOutcome.CaughtOut => ContactOutcome.Out,
+			FieldingOutcome.Foul => new PAOutcome(isFoul: true),
+			FieldingOutcome.CaughtOut => new PAOutcome(
+				outs: 1,
+				runners: runners,
+				paType: PAResultType.BallInPlay
+			),
 			FieldingOutcome.Fielded => ResolveThrow(
 				fieldingAttempt,
 				fielding,
 				defenseIndices,
+				runners,
 				random
 			),
 			FieldingOutcome.Miss when fieldingAttempt.SecondaryFielder != null =>
-				ResolveSecondaryFielder(fieldingAttempt, fielding, defenseIndices, random),
-			FieldingOutcome.Miss => ContactOutcome.Safe,
+				ResolveSecondaryFielder(fieldingAttempt, fielding, defenseIndices, runners, random),
+			FieldingOutcome.Miss => new PAOutcome(
+				runners: runners,
+				paType: PAResultType.BallInPlay
+			),
 			_ => throw new InvalidOperationException(
 				$"Unexpected fielding outcome: {primaryOutcome}"
 			),
 		};
+
+		return paOutcome;
 	}
 
 	private static FieldingOutcome RollFieldingOutcome(FieldingAttempt attempt, Random random)
@@ -187,10 +198,11 @@ public class Contact
 		};
 	}
 
-	private static ContactOutcome ResolveThrow(
+	private static PAOutcome ResolveThrow(
 		FieldingAttempt attempt,
 		Team fielding,
 		Dictionary<FieldPosition, int> defenseIndices,
+		Dictionary<Base, int> runners,
 		Random random
 	)
 	{
@@ -203,13 +215,16 @@ public class Contact
 				or RosterPosition.ThirdBase
 				or RosterPosition.ShortStop;
 
-		return isInfield ? ContactOutcome.Out : ContactOutcome.Safe;
+		return isInfield
+			? new PAOutcome(outs: 1, runners: runners, paType: PAResultType.BallInPlay)
+			: new PAOutcome(runners: runners, paType: PAResultType.BallInPlay);
 	}
 
-	private static ContactOutcome ResolveSecondaryFielder(
+	private static PAOutcome ResolveSecondaryFielder(
 		FieldingAttempt attempt,
 		Team fielding,
 		Dictionary<FieldPosition, int> defenseIndices,
+		Dictionary<Base, int> runners,
 		Random random
 	)
 	{
@@ -224,14 +239,23 @@ public class Contact
 		);
 		weights += backupModifier;
 
-		var outcome = weights.RollDice(random);
+		var fieldingOutcome = weights.RollDice(random);
 
-		return outcome switch
+		var paOutcome = fieldingOutcome switch
 		{
-			FieldingOutcome.CaughtOut => ContactOutcome.Out,
-			FieldingOutcome.Fielded => ContactOutcome.Safe, // too late for the out
-			_ => ContactOutcome.Safe, // missed
+			FieldingOutcome.CaughtOut => new PAOutcome(
+				outs: 1,
+				runners: runners,
+				paType: PAResultType.BallInPlay
+			),
+			FieldingOutcome.Fielded => new PAOutcome(
+				runners: runners,
+				paType: PAResultType.BallInPlay
+			), // needs bases
+			_ => new PAOutcome(paType: PAResultType.BallInPlay), // missed, needs bases
 		};
+
+		return paOutcome;
 	}
 
 	public static FieldPosition? GetBackupFielder(
@@ -319,10 +343,34 @@ public struct FieldingAttempt
 	public ContactInfo Contact { get; init; }
 }
 
-public enum ContactOutcome
+public struct PAOutcome
 {
-	Foul,
-	Out,
-	Safe,
-	Homerun, // not yet implemented
+	public bool IsFoul { get; init; } // we need to check this first, so that basestate does not get modified in case of fouls
+	public Dictionary<Base, int> RunnersOnBase { get; init; } // null if foul
+	public int RunsScored { get; init; }
+	public int Outs { get; init; } // 0, 1, or 2 (double plays)
+	public PAResultType PAType { get; init; }
+
+	public PAOutcome(
+		bool isFoul = false,
+		Dictionary<Base, int>? runners = null,
+		int runs = 0,
+		int outs = 0,
+		PAResultType paType = PAResultType.BallInPlay
+	)
+	{
+		IsFoul = isFoul;
+		RunnersOnBase = runners ?? new Dictionary<Base, int>();
+		RunsScored = runs;
+		Outs = outs;
+		PAType = paType;
+	}
+}
+
+public enum PAResultType
+{
+	Strikeout,
+	Walk,
+	BallInPlay,
+	SimError,
 }
